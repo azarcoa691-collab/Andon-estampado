@@ -13,10 +13,17 @@ Horas de alcance = `INVENTORY PIECES ÷ (Daily usage (pcs) ÷ 17)` (si faltan da
 Columnas requeridas: `SEBANGO`, `Process Name`, `Daily usage (pcs)`, `INVENTORY PIECES`, `Patron`.
 
 ## Orden de la lista
-1. Críticos en rojo (sin correr) · 2. En corrida · 3. Resto por siguiente corrida según su **Patron** (col. S) y el calendario de la prensa. Empate → menos horas primero.
+1. 🔴 Críticos sin correr (menos horas primero).
+2. ▶ En corrida.
+3. **No cubre**: su inventario se acaba antes de su siguiente corrida de patrón (menos horas primero) → conviene adelantarlo.
+4. Cubiertos, por orden de patrón (siguiente corrida según columna `Patron` y calendario de la prensa).
+Las horas (y el hueco hasta la siguiente corrida) se miden en **horas productivas de turno**, no en horas de reloj: no bajan de noche entre turnos ni en días sin calendario.
 
-## Botones por sebango
-▶ ya está corriendo · ✔ terminó · ⛔ abortar (pide piezas producidas y motivo y avisa a PC en la ventana **❌ ABORTADOS**).
+## Botones
+▶ ya está corriendo · ✔ terminó (pide piezas producidas, las suma al inventario y manda el número a su siguiente corrida de patrón) · ⛔ abortar (piezas + motivo, avisa a PC en ❌ ABORTADOS).
+
+## Cumplimiento de patrón
+% de sebangos de la prensa (con calendario) que están corriendo o cuyo inventario cubre hasta su siguiente corrida de patrón.
 
 ## Sonido
 Pulsa **🔇 SONIDO** una vez (el navegador lo exige). Suena cada 20 s si algún sebango no corriendo tiene ≤ 1 h.

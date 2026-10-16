@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>ANDON Estampado</title>
 <style>
-:root{--bg:#f0f2f6;--tx:#212529;--mut:#6c757d;--C:#dc3545;--A:#fd7e14;--X:#0d6efd;--K:#28a745;--dk:#212529;--cols:1fr 1.1fr 1.3fr 1fr auto}
+:root{--bg:#f0f2f6;--tx:#212529;--mut:#6c757d;--C:#dc3545;--A:#fd7e14;--X:#0d6efd;--K:#28a745;--dk:#212529;--cols:1fr 1.5fr 1fr auto}
 *{box-sizing:border-box}html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--tx);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
 header{display:flex;align-items:center;gap:10px;padding:8px 12px;flex:none}.tt{flex:1;min-width:0}
@@ -16,15 +16,15 @@ h1{margin:0;font-size:clamp(1rem,3vh,1.8rem);font-weight:800;white-space:nowrap;
 .grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));grid-auto-rows:1fr;gap:10px}
 .press{border:0;border-bottom:6px solid;border-radius:18px;background:#f8f9fb;cursor:pointer;font-family:inherit;color:var(--tx);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px}
 .press b{font-size:clamp(1rem,3vh,1.5rem)}.press small{color:var(--mut);font-weight:700}.press em{font-style:normal;font-size:clamp(1.4rem,5vh,2.6rem)}.press strong{font-size:clamp(.7rem,1.8vh,.95rem)}
-.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;flex:none}
-.sum div{text-align:center;border-radius:14px;padding:5px 2px;background:#f8f9fb;font-weight:800}.sum span{display:block;font-size:clamp(1.2rem,4vh,2rem);line-height:1.1}.sum small{font-size:clamp(.55rem,1.5vh,.8rem)}
-.hd{display:grid;grid-template-columns:var(--cols);gap:6px;color:var(--mut);font-weight:800;font-size:.68rem;text-transform:uppercase;padding:0 14px 4px;flex:none}.hd :nth-child(4){text-align:right}
+.sum{display:grid;grid-template-columns:1.6fr repeat(4,1fr) 1.3fr;gap:8px;margin-bottom:8px;flex:none}
+.sum div{text-align:center;border-radius:14px;padding:5px 2px;background:#f8f9fb;font-weight:800}.sum span{display:block;font-size:clamp(1.2rem,4vh,2rem);line-height:1.1}.sum small{font-size:clamp(.55rem,1.5vh,.8rem);display:block}.sum .pat{background:#212529;color:#fff}.sum .pat span{font-size:clamp(1.3rem,4.6vh,2.3rem)}
+.hd{display:grid;grid-template-columns:var(--cols);gap:6px;color:var(--mut);font-weight:800;font-size:.68rem;text-transform:uppercase;padding:0 14px 4px;flex:none}.hd :nth-child(3){text-align:right}
 #list{flex:1;min-height:0;display:grid;grid-auto-flow:column;gap:6px;overflow:auto}
 .row{position:relative;display:grid;grid-template-columns:var(--cols);gap:6px;align-items:center;background:#f8f9fb;border-radius:calc(var(--rh)*.25);border-left:calc(var(--rh)*.1) solid;padding:0 calc(var(--rh)*.15) calc(var(--rh)*.1) calc(var(--rh)*.2);overflow:hidden;min-width:0}
-.s{font-size:max(15px,calc(var(--rh)*.34));font-weight:800;color:var(--tx)}.p{font-size:max(10px,calc(var(--rh)*.17));color:var(--mut);font-weight:700}
-.pt{font-size:max(10px,calc(var(--rh)*.17));font-weight:800;color:#495057;line-height:1.15}.pt.run{color:var(--K)}
-.h{text-align:right;font-size:max(17px,calc(var(--rh)*.4));font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
-.h small{display:block;font-size:max(9px,calc(var(--rh)*.14));margin-top:2px}
+.s{font-size:max(17px,calc(var(--rh)*.44));font-weight:800;color:var(--tx)}
+.pt{font-size:max(11px,calc(var(--rh)*.21));font-weight:800;color:#495057;line-height:1.15}.pt.run{color:var(--K)}.pt small{display:block;font-weight:700;font-size:.8em;color:var(--mut)}.pt small.bad{color:var(--C)}
+.h{text-align:right;font-size:max(19px,calc(var(--rh)*.48));font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.h small{display:block;font-size:max(10px,calc(var(--rh)*.16));margin-top:2px}
 .ac{display:flex;gap:4px}.ib{border:0;border-radius:50%;width:calc(var(--rh)*.55);height:calc(var(--rh)*.55);min-width:30px;min-height:30px;font-size:max(13px,calc(var(--rh)*.25));cursor:pointer;color:#fff}
 .ib.go{background:var(--K)}.ib.ok{background:#0d6efd}.ib.no{background:var(--C)}
 .bar{position:absolute;left:calc(var(--rh)*.2);right:calc(var(--rh)*.2);bottom:calc(var(--rh)*.08);height:max(4px,calc(var(--rh)*.07));background:#e5e5e5;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;border-radius:6px}
@@ -38,16 +38,16 @@ h1{margin:0;font-size:clamp(1rem,3vh,1.8rem);font-weight:800;white-space:nowrap;
 dialog{border:0;border-radius:22px;padding:20px;width:min(420px,92vw);box-shadow:0 20px 50px rgba(0,0,0,.35)}dialog::backdrop{background:rgba(0,0,0,.5)}
 dialog h3{margin:0 0 12px}dialog label{display:block;font-weight:700;margin:10px 0 4px;font-size:.9rem}dialog input,dialog select,dialog textarea{width:100%;padding:10px;border:1px solid #ced4da;border-radius:10px;font:inherit;font-size:1rem}
 .dbt{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
-@media(max-width:560px){:root{--cols:1fr 1.3fr 1fr auto}.p,.hd :nth-child(2){display:none}}
+@media(max-width:560px){:root{--cols:1fr 1.3fr 1fr auto}.sum{grid-template-columns:repeat(4,1fr)}.sum .w{grid-column:span 2}}
 </style></head><body>
 <header><div class="tt"><h1 id="ttl"></h1><div class="clk" id="clk"></div></div>
 <div class="btns"><button class="btn" id="snd" onclick="toggleSnd()">🔇 <span>SONIDO</span></button><button class="btn" id="abtn" onclick="V='abt';render()">❌ <span>ABORTADOS</span> <b id="abn"></b></button><button class="btn blue hid" id="back" onclick="home()">⬅️ <span>PRENSAS</span></button><button class="btn" onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()">⏱️ <span>PANTALLA COMPLETA</span></button><label class="btn">📂 <span>CARGAR CSV</span><input type="file" accept=".csv" id="f"></label></div></header>
 <div id="alert" class="hid"></div>
 <div id="home" class="card"><div class="grid" id="grid"></div></div>
-<div id="det" class="card hid"><div class="sum" id="sum"></div><div class="hd"><span>Sebango</span><span>Process name</span><span>Siguiente corrida (patrón)</span><span>Horas de alcance</span><span></span></div><div id="list"></div></div>
+<div id="det" class="card hid"><div class="sum" id="sum"></div><div class="hd"><span>Sebango</span><span>Siguiente corrida (patrón)</span><span>Horas de alcance</span><span></span></div><div id="list"></div></div>
 <div id="abt" class="card hid"><div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap"><b style="flex:1;font-size:1.2rem">❌ Números abortados</b><button class="btn" onclick="exportAbt()">⬇️ EXPORTAR CSV</button></div><table><thead><tr><th>Fecha / hora</th><th>Prensa</th><th>Sebango</th><th>Piezas producidas</th><th>Motivo</th><th>Nota</th><th>Estado PC</th></tr></thead><tbody id="atb"></tbody></table></div>
 <div class="foot" id="foot"></div>
-<dialog id="dlg"><h3 id="dh">⛔ Abortar</h3><label>Piezas producidas</label><input id="dq" type="number" min="0" inputmode="numeric"><label>Motivo</label><select id="dm"><option>Mala operación</option><option>Defecto de material</option><option>Troquel dañado</option><option>Otro</option></select><label>Nota (opcional)</label><textarea id="dn" rows="2"></textarea><div class="dbt"><button class="btn" style="background:#6c757d" onclick="dlg.close()">CANCELAR</button><button class="btn red" onclick="saveAbort()">NOTIFICAR A PC</button></div></dialog>
+<dialog id="dlg"><h3 id="dh">⛔ Abortar</h3><label>Piezas producidas</label><input id="dq" type="number" min="0" inputmode="numeric"><div id="dab"><label>Motivo</label><select id="dm"><option>Mala operación</option><option>Defecto de material</option><option>Troquel dañado</option><option>Otro</option></select><label>Nota (opcional)</label><textarea id="dn" rows="2"></textarea></div><div class="dbt"><button class="btn" style="background:#6c757d" onclick="dlg.close()">CANCELAR</button><button class="btn red" id="dok" onclick="saveDlg()">NOTIFICAR A PC</button></div></dialog>
 <script>
 const EMBED=null;
 const CSV_URL="INVENTARIO_GENERAL.csv",REFRESH_MS=60000;
@@ -73,7 +73,7 @@ const cl=h=>h<T.C?"C":h<T.A?"A":h<T.X?"X":"K";
 const PTS=[[0,5],[4.1,44],[12.6,70],[48.6,90],[120,100]];
 const pct=h=>{for(let i=1;i<PTS.length;i++)if(h<=PTS[i][0]){const[a,b]=[PTS[i-1],PTS[i]];return a[1]+(b[1]-a[1])*(h-a[0])/(b[0]-a[0])}return 100};
 const LS={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-let S=LS.get("andon.data",null),RUN=LS.get("andon.run",{}),ABT=LS.get("andon.abort",[]),V="home",sel=null,snd=false,lastBeep=0,AC=null,pend=null;
+let S=LS.get("andon.data",null),RUN=LS.get("andon.run",{}),ABT=LS.get("andon.abort",[]),ADD=LS.get("andon.add",{}),FIN=LS.get("andon.fin",{}),pmode="abort",V="home",sel=null,snd=false,lastBeep=0,AC=null,pend=null;
 const hm=t=>new Date(t).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
 const fdt=t=>new Date(t).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"});
 /* ---------- datos ---------- */
@@ -85,10 +85,10 @@ function toRows(text){
  if(iP<0)throw 0;const m=new Map();let dup=0;
  rows.slice(hi+1).forEach(r=>{const s=(r[iS]||"").trim(),p=(r[iP]||"").trim();if(!s||!p)return;
   const dly=parseFloat(r[iD])||0,inv=parseFloat(r[iI])||0,sc=parseFloat(r[iH])||0,h0=dly>0&&inv>=0&&r[iI]!==""?inv/(dly/17):sc;
-  const x=[s,p,+h0.toFixed(3),(r[iT]||"").trim()],k=s+"|"+p;
+  const x=[s,p,+h0.toFixed(3),(r[iT]||"").trim(),dly],k=s+"|"+p;
   if(m.has(k)){dup++;if(x[2]<m.get(k)[2])m.set(k,x)}else m.set(k,x)});
  if(!m.size)throw 0;return{rows:[...m.values()],dup}}
-function setData(text,src,base,force){const h=hash(text);if(!force&&S&&S.hash===h)return false;
+function setData(text,src,base,force){const h=hash("v3"+text);if(!force&&S&&S.hash===h)return false;
  const o=toRows(text);S={rows:o.rows,dup:o.dup,base,src,hash:h};LS.set("andon.data",S);return true}
 async function loadRemote(){try{const r=await fetch(CSV_URL+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;
  const b=await r.arrayBuffer();let t;try{t=new TextDecoder("utf-8",{fatal:true}).decode(b)}catch(e){t=new TextDecoder("latin1").decode(b)}
@@ -96,17 +96,32 @@ async function loadRemote(){try{const r=await fetch(CSV_URL+"?t="+Date.now(),{ca
  catch(e){if(!S&&EMBED)setData(EMBED,"INVENTARIO_GENERAL.csv (incluido)",Date.now(),false)}render()}
 $("f").onchange=async e=>{const fl=e.target.files[0];if(!fl)return;try{const b=await fl.arrayBuffer();let t;try{t=new TextDecoder("utf-8",{fatal:true}).decode(b)}catch(x){t=new TextDecoder("latin1").decode(b)}
  setData(t,fl.name,Date.now(),true);render()}catch(x){alert("No se pudo leer el CSV (columnas: SEBANGO, Process Name, Daily usage (pcs), INVENTORY PIECES, Patron).")}e.target.value=""};
-const hrs=x=>S?Math.max(0,x[2]-(Date.now()-S.base)/36e5):0;
+const addH=x=>{const a=ADD[x[0]];return a&&x[4]>0?a.filter(v=>v[0]>S.base).reduce((t,v)=>t+v[1],0)/(x[4]/17):0};
+const fin=x=>FIN[x[0]]>S.base?FIN[x[0]]:0;
+/* horas productivas de turno entre dos instantes (días con calendario; factor 17 h productivas / horas de turno) */
+const PK=17/((SH[1][1]-SH[1][0])+(SH[2][1]-SH[2][0]));
+const worked=(p,d)=>{const k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");return CAL[k]?letter(p,d)!==null:d.getDay()>0&&d.getDay()<6};
+function prod(p,t0,t1){if(t1<=t0)return 0;let tot=0;const d0=new Date(t0);for(let o=-1;;o++){const d=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+o);if(at(d,0)>t1)break;if(!worked(p,d))continue;
+ for(const s of[1,2]){const a=Math.max(t0,at(d,SH[s][0])),b=Math.min(t1,at(d,SH[s][1]));if(b>a)tot+=b-a}}return tot/36e5*PK}
+const hrs=x=>S?Math.max(0,x[2]+addH(x)-prod(x[1],S.base,Date.now())):0;
 /* ---------- calendario / patrón ---------- */
 const cc={};function letter(p,d){const k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"),s=(CAL[k]||{})[CALKEY[p]];if(!s)return null;const m=(" "+s).match(new RegExp(" "+d.getDate()+"([A-Z])"));return m?m[1]:null}
 const pats=x=>new Set(x[3].toUpperCase().split(",").map(v=>v.trim()).filter(Boolean));
 const DN=["dom","lun","mar","mié","jue","vie","sáb"];
 const at=(d,h)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()+Math.round(h*36e5);
-function nextRun(x,now){const P=pats(x),n=now.getTime();for(let o=-1;o<14;o++){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+o),L=letter(x[1],d);if(!L)continue;
- for(const s of[1,2]){const st=at(d,SH[s][0]),en=at(d,SH[s][1]);if(en<=n)continue;
-  if(P.has(L+s)){const d2=new Date(st);return{L,s,idx:o*2+s,now:st<=n,lbl:(st<=n?"EN TURNO":o<=0?"HOY":o==1?"MAÑANA":DN[d2.getDay()]+" "+d2.getDate())+" · T"+s+" · "+L+s}}}}return null}
+function nextRun(x,now,f){f=f||0;const P=pats(x),n=now.getTime();for(let o=-1;o<14;o++){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+o),L=letter(x[1],d);if(!L)continue;
+ for(const s of[1,2]){const st=at(d,SH[s][0]),en=at(d,SH[s][1]);if(en<=n||st<=f)continue;
+  if(P.has(L+s)){const d2=new Date(st);return{L,s,idx:o*2+s,st,now:st<=n,lbl:(st<=n?"EN TURNO":o<=0?"HOY":o==1?"MAÑANA":DN[d2.getDay()]+" "+d2.getDate())+" · T"+s+" · "+L+s}}}}return null}
 function curSlot(p,now){const n=now.getTime();for(const o of[-1,0]){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+o);for(const s of[1,2])if(at(d,SH[s][0])<=n&&n<at(d,SH[s][1]))return{L:letter(p,d),s,act:1}}
  const h=now.getHours()+now.getMinutes()/60;return{L:letter(p,now),s:h<SH[1][0]?1:2,act:0}}
+const fh=h=>String(Math.floor(h)%24).padStart(2,"0")+":"+String(Math.round(h%1*60)).padStart(2,"0");
+function info(x,now){const h=hrs(x),f=fin(x),nr=nextRun(x,now,f),gap=nr&&!nr.now?prod(x[1],now.getTime(),nr.st):0;return{x,h,c:cl(h),run:RUN[x[0]],f,nr,gap,def:nr&&!nr.now?Math.max(0,gap-h):0}}
+/* Orden: 0 crítico sin correr · 1 corriendo · 2 NO cubre hasta su siguiente corrida de patrón (menos horas primero) · 3 cubierto, por orden de patrón */
+const rank=i=>i.run?1:i.c==="C"?0:i.def>0?2:3;
+function listFor(p,now){const it=S.rows.filter(x=>x[1]===p).map(x=>info(x,now));
+ it.sort((a,b)=>rank(a)-rank(b)||(rank(a)<3?a.h-b.h:0)||(a.nr?a.nr.idx:999)-(b.nr?b.nr.idx:999)||a.h-b.h);return it}
+function pstat(p,now){const it=listFor(p,now),ev=it.filter(i=>i.nr||i.run),cov=ev.filter(i=>i.run||i.def<=0).length;return{it,pc:ev.length?Math.round(100*cov/ev.length):null}}
+const pcc=v=>v==null?"K":v>=90?"K":v>=70?"A":"C";
 /* ---------- sonido ---------- */
 function beep(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();for(let i=0;i<4;i++){const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+i*.28;o.type="square";o.frequency.value=i%2?660:990;g.gain.setValueAtTime(.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.24);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.25)}}catch(e){}}
 function toggleSnd(){snd=!snd;if(snd)beep();$("snd").className="btn"+(snd?" on":"");$("snd").firstChild.textContent=snd?"🔔 ":"🔇 "}
@@ -115,17 +130,16 @@ function alerts(){return S?S.rows.filter(x=>PR.includes(x[1])&&!RUN[x[0]]&&hrs(x
 function saveRun(){LS.set("andon.run",RUN)}
 function act(s,a){const x=S.rows.find(r=>r[0]===s);if(!x)return;
  if(a==="run"){if(RUN[s])return;RUN[s]=Date.now();saveRun()}
- else if(a==="end"){delete RUN[s];saveRun()}
- else if(a==="abort"){pend=x;$("dh").textContent="⛔ Abortar "+s+" · "+x[1];$("dq").value="";$("dn").value="";dlg.showModal();return}
+ else{pend=x;pmode=a;$("dh").textContent=(a==="end"?"✔ Terminó ":"⛔ Abortar ")+s+" · "+x[1];$("dab").classList.toggle("hid",a==="end");$("dok").textContent=a==="end"?"GUARDAR":"NOTIFICAR A PC";$("dq").value="";$("dn").value="";dlg.showModal();return}
  render()}
-function saveAbort(){const q=parseInt($("dq").value);if(isNaN(q)||q<0){$("dq").focus();return}
- const x=pend;if(!x)return;if(ABT.some(a=>a.s===x[0]&&Date.now()-a.t<5000)){dlg.close();return}
- ABT.unshift({id:Date.now(),t:Date.now(),s:x[0],p:x[1],q,m:$("dm").value,n:$("dn").value.trim(),ok:null});LS.set("andon.abort",ABT);
- delete RUN[x[0]];saveRun();pend=null;dlg.close();render()}
+function saveDlg(){const q=parseInt($("dq").value);if(isNaN(q)||q<0){$("dq").focus();return}const x=pend;if(!x)return;const s=x[0],t=Date.now();
+ if(pmode==="abort"){if(ABT.some(a=>a.s===s&&t-a.t<5000)){dlg.close();return}ABT.unshift({id:t,t,s,p:x[1],q,m:$("dm").value,n:$("dn").value.trim(),ok:null});LS.set("andon.abort",ABT)}
+ else{if(FIN[s]&&t-FIN[s]<5000){dlg.close();return}FIN[s]=t;LS.set("andon.fin",FIN)}
+ (ADD[s]=ADD[s]||[]).push([t,q]);LS.set("andon.add",ADD);delete RUN[s];saveRun();pend=null;dlg.close();render()}
 function ackAbt(id){const a=ABT.find(v=>v.id===id);if(a){a.ok=Date.now();LS.set("andon.abort",ABT);render()}}
 function exportAbt(){const L=[["Fecha","Prensa","Sebango","Piezas producidas","Motivo","Nota","Atendido por PC"],...ABT.map(a=>[fdt(a.t),a.p,a.s,a.q,a.m,a.n,a.ok?fdt(a.ok):"PENDIENTE"])];
  const b=new Blob(["\uFEFF"+L.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\n")],{type:"text/csv"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="abortados.csv";a.click()}
-addEventListener("storage",e=>{if(e.key==="andon.abort"){const n=ABT.filter(a=>!a.ok).length;ABT=LS.get("andon.abort",[]);if(ABT.filter(a=>!a.ok).length>n&&snd)beep();render()}if(e.key==="andon.run"){RUN=LS.get("andon.run",{});render()}});
+addEventListener("storage",e=>{if(e.key==="andon.abort"){const n=ABT.filter(a=>!a.ok).length;ABT=LS.get("andon.abort",[]);if(ABT.filter(a=>!a.ok).length>n&&snd)beep();render()}if(e.key==="andon.run"){RUN=LS.get("andon.run",{});render()}if(e.key==="andon.add"){ADD=LS.get("andon.add",{});render()}if(e.key==="andon.fin"){FIN=LS.get("andon.fin",{});render()}});
 /* ---------- render ---------- */
 function home(){V="home";sel=null;render()}
 function render(){
@@ -135,21 +149,19 @@ function render(){
  const al=alerts();$("alert").classList.toggle("hid",!al.length);
  if(al.length){$("alert").textContent="🔔 ALERTA ≤"+ALERT_H+" h: "+al.slice(0,6).map(x=>x[0]+" ("+x[1]+") "+hrs(x).toFixed(1)+"h").join(" · ")+(al.length>6?" +"+(al.length-6):"")+(snd?"":"  — activa 🔇 SONIDO");
   if(snd&&Date.now()-lastBeep>BEEP_EVERY){lastBeep=Date.now();beep()}}
- $("ttl").textContent=V==="abt"?"❌ Abortados – avisos a PC":V==="det"?"🏭 "+sel+(()=>{const c=curSlot(sel,now);return c.L?" · Patrón "+c.L+" · "+(c.act?"T":"próx. T")+c.s:""})():"🚨 Andon de Estampado";
- if(S)$("foot").textContent="Inventario tomado: "+fdt(S.base)+" · "+S.src+" · "+S.rows.length+" sebangos"+(S.dup?" ("+S.dup+" duplicados omitidos)":"")+" · horas en descenso en tiempo real";else $("foot").textContent="Sin datos: carga el CSV de inventario";
+ $("ttl").textContent=V==="abt"?"❌ Abortados – avisos a PC":V==="det"?"🏭 "+sel:"🚨 Andon de Estampado";
+ if(S)$("foot").textContent="Inventario tomado: "+fdt(S.base)+" · "+S.src+" · "+S.rows.length+" sebangos"+(S.dup?" ("+S.dup+" duplicados omitidos)":"")+" · las horas bajan solo en horas productivas de turno";else $("foot").textContent="Sin datos: carga el CSV de inventario";
  if(!S)return;
- if(V==="home")$("grid").innerHTML=PR.map(p=>{const r=S.rows.filter(x=>x[1]===p),m=r.length?Math.min(...r.map(hrs)):999,c=cl(m),n=r.filter(x=>cl(hrs(x))==="C"&&!RUN[x[0]]).length,u=r.filter(x=>RUN[x[0]]).length;
-  return `<button class="press ${c}" onclick="sel='${p}';V='det';render()"><b>${p}</b><small>${r.length} sebangos${u?" · ▶"+u:""}</small><em>${EM[c]}</em><strong>${n?n+" CRÍTICO"+(n>1?"S":""):LB[c]}</strong></button>`}).join("");
- if(V==="det"){const k={C:0,A:0,X:0,K:0};
-  const it=S.rows.filter(x=>x[1]===sel).map(x=>{const h=hrs(x),c=cl(h);k[c]++;return{x,h,c,run:RUN[x[0]],nr:nextRun(x,now)}});
-  const rank=i=>i.c==="C"&&!i.run?0:i.run?1:2;
-  it.sort((a,b)=>rank(a)-rank(b)||(a.nr?a.nr.idx:999)-(b.nr?b.nr.idx:999)||a.h-b.h);
-  $("sum").innerHTML=ORD.map(c=>`<div class="${c}"><span>${k[c]}</span><small>${EM[c]} ${LB[c]}</small></div>`).join("");
-  $("list").innerHTML=it.map(i=>`<div class="row ${i.c}${i.run?" isrun":""}"><span class="s">${i.x[0]}</span><span class="p">${i.x[1]}</span><span class="pt${i.run?" run":""}">${i.run?"▶ CORRIENDO "+hm(i.run):i.nr?i.nr.lbl:"Sin patrón"}</span><span class="h" style="color:var(--${i.c})">${i.h.toFixed(1)}h<small>${EM[i.c]} ${LB[i.c]}</small></span><span class="ac">${i.run?`<button class="ib ok" title="Terminó" onclick="act('${i.x[0]}','end')">✔</button><button class="ib no" title="Abortar" onclick="act('${i.x[0]}','abort')">⛔</button>`:`<button class="ib go" title="Ya está corriendo" onclick="act('${i.x[0]}','run')">▶</button>`}</span><div class="bar"><i class="bg${i.c}" style="width:${pct(i.h)}%"></i></div></div>`).join("")||"<p>Sin sebangos</p>";fit()}
+ if(V==="home")$("grid").innerHTML=PR.map(p=>{const ps=pstat(p,now),r=ps.it,m=r.length?Math.min(...r.map(i=>i.h)):999,c=cl(m),n=r.filter(i=>i.c==="C"&&!i.run).length,u=r.filter(i=>i.run).length,q=curSlot(p,now);
+  return `<button class="press ${c}" onclick="sel='${p}';V='det';render()"><b>${p}</b><small>${r.length} sebangos${u?" · ▶"+u:""}</small><small style="color:var(--tx)">${q.L?(q.act?"Patrón ":"Próx. ")+q.L+" · T"+q.s:""}</small><em>${EM[c]}</em><strong>${n?n+" CRÍTICO"+(n>1?"S":""):LB[c]}</strong><small style="color:var(--${pcc(ps.pc)});font-weight:800">Cumpl. patrón ${ps.pc==null?"–":ps.pc+"%"}</small></button>`}).join("");
+ if(V==="det"){const k={C:0,A:0,X:0,K:0},ps=pstat(sel,now),it=ps.it,q=curSlot(sel,now);it.forEach(i=>k[i.c]++);
+  $("sum").innerHTML=`<div class="w pat"><small>${q.act?"PATRÓN EN CURSO":"PRÓXIMO PATRÓN"}</small><span>${q.L?q.L+" · T"+q.s:"–"}</span><small>${fh(SH[q.s][0])} – ${fh(SH[q.s][1])}</small></div>`+ORD.map(c=>`<div class="${c}"><span>${k[c]}</span><small>${EM[c]} ${LB[c]}</small></div>`).join("")+`<div class="w ${pcc(ps.pc)}"><span>${ps.pc==null?"–":ps.pc+"%"}</span><small>CUMPLIMIENTO PATRÓN</small></div>`;
+  const cv=i=>i.run?"":!i.nr?"sin calendario":i.nr.now?"corre ahora":i.def>0?"NO CUBRE · faltan "+i.def.toFixed(1)+" h":"cubre +"+(i.h-i.gap).toFixed(1)+" h";
+  $("list").innerHTML=it.map(i=>`<div class="row ${i.c}${i.run?" isrun":""}"><span class="s">${i.x[0]}</span><span class="pt${i.run?" run":""}">${i.run?"▶ CORRIENDO "+hm(i.run):i.nr?i.nr.lbl:"Sin patrón"}<small class="${i.def>0?"bad":""}">${(i.f?"✔ terminó "+hm(i.f)+" · ":"")+cv(i)}</small></span><span class="h" style="color:var(--${i.c})">${i.h.toFixed(1)}h<small>${EM[i.c]} ${LB[i.c]}</small></span><span class="ac">${i.run?`<button class="ib ok" title="Terminó" onclick="act('${i.x[0]}','end')">✔</button><button class="ib no" title="Abortar" onclick="act('${i.x[0]}','abort')">⛔</button>`:`<button class="ib go" title="Ya está corriendo" onclick="act('${i.x[0]}','run')">▶</button>`}</span><div class="bar"><i class="bg${i.c}" style="width:${pct(i.h)}%"></i></div></div>`).join("")||"<p>Sin sebangos</p>";fit()}
  if(V==="abt")$("atb").innerHTML=ABT.map(a=>`<tr><td>${fdt(a.t)}</td><td>${a.p}</td><td><b>${a.s}</b></td><td><b>${a.q}</b></td><td>${a.m}</td><td>${a.n||"–"}</td><td>${a.ok?`<span class="tag bgK">ATENDIDO ${hm(a.ok)}</span>`:`<span class="tag bgC">PENDIENTE</span> <button class="mini" onclick="ackAbt(${a.id})">✔ Atendido</button>`}</td></tr>`).join("")||'<tr><td colspan="7">Sin abortados registrados</td></tr>'}
-function fit(){const L=$("list"),n=L.children.length;if(!n||V!=="det")return;const W=L.clientWidth,H=L.clientHeight,g=6,maxC=Math.max(1,Math.floor(W/470));
+function fit(){const L=$("list"),n=L.children.length;if(!n||V!=="det")return;const W=L.clientWidth,H=L.clientHeight,g=6,maxC=Math.max(1,Math.floor(W/400));
  let c=1;for(;c<maxC;c++){const r=Math.ceil(n/c);if((H-g*(r-1))/r>=60)break}
- const r=Math.ceil(n/c);let rh=(H-g*(r-1))/r;rh=Math.min(Math.max(rh,50),96);
+ const r=Math.ceil(n/c);let rh=(H-g*(r-1))/r;rh=Math.min(Math.max(rh,50),110);
  L.style.setProperty("--rh",rh+"px");L.style.gridTemplateRows=`repeat(${r},${rh}px)`;L.style.gridAutoColumns="minmax(0,1fr)"}
 addEventListener("resize",fit);document.addEventListener("fullscreenchange",()=>setTimeout(fit,150));
 const tick=()=>$("clk").textContent=new Date().toLocaleString("es-MX");setInterval(tick,1000);tick();
