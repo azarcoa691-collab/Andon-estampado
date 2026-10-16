@@ -35,6 +35,7 @@ h1{margin:0;font-size:clamp(1rem,3vh,1.8rem);font-weight:800;white-space:nowrap;
 #abt{overflow:auto}table{width:100%;border-collapse:collapse;font-size:clamp(.75rem,1.9vh,1rem)}th{text-align:left;color:var(--mut);font-size:.72rem;text-transform:uppercase;padding:6px;position:sticky;top:0;background:#fff}td{padding:8px 6px;border-top:1px solid #e5e7eb}
 .tag{border-radius:20px;padding:3px 9px;color:#fff;font-weight:800;font-size:.75rem;white-space:nowrap}.mini{border:0;border-radius:20px;padding:5px 10px;background:var(--K);color:#fff;font-weight:800;cursor:pointer}
 #qalert{flex:none;margin:0 12px 8px;background:#6f42c1;color:#fff;border-radius:14px;padding:8px 14px;font-weight:800;font-size:clamp(.75rem,2vh,1rem)}
+.press.blink{animation:bl .8s infinite;box-shadow:0 0 0 5px var(--C)}
 body.alarm::after{content:"";position:fixed;inset:0;border:10px solid var(--C);pointer-events:none;animation:bl .6s infinite;z-index:50}
 .foot{flex:none;text-align:center;color:var(--mut);font-style:italic;font-size:clamp(.6rem,1.5vh,.78rem);padding:5px}
 dialog{border:0;border-radius:22px;padding:20px;width:min(420px,92vw);box-shadow:0 20px 50px rgba(0,0,0,.35)}dialog::backdrop{background:rgba(0,0,0,.5)}
@@ -153,16 +154,16 @@ function render(){
  if(dlg.open)return;const now=new Date(),pn=ABT.filter(a=>!a.ok||(a.hold&&!a.rel)).length;
  $("abn").textContent=pn?"("+pn+")":"";$("abtn").className="btn"+(pn?" red":"");
  $("home").classList.toggle("hid",V!=="home");$("det").classList.toggle("hid",V!=="det");$("abt").classList.toggle("hid",V!=="abt");$("back").classList.toggle("hid",V==="home");
- const al=alerts(),qh=ABT.filter(a=>a.hold&&!a.rel);$("alert").classList.toggle("hid",!al.length);document.body&&document.body.classList.toggle("alarm",al.length>0);
+ const all=alerts(),al=V==="det"?all.filter(x=>x[1]===sel):V==="home"?all:[],hot=V==="det"&&al.length>0,qh=ABT.filter(a=>a.hold&&!a.rel);$("alert").classList.toggle("hid",!al.length);document.body&&document.body.classList.toggle("alarm",hot);
  $("qalert").classList.toggle("hid",!qh.length);if(qh.length)$("qalert").textContent="🛑 PIEZAS DETENIDAS POR CALIDAD (pendiente certificación): "+qh.slice(0,5).map(a=>a.s+" ("+a.p+") "+a.q+" pzs").join(" · ")+(qh.length>5?" +"+(qh.length-5):"");
- if(al.length){$("alert").textContent="🔔 ALERTA ≤"+ALERT_H+" h: "+al.slice(0,6).map(x=>x[0]+" ("+x[1]+") "+hrs(x).toFixed(1)+"h").join(" · ")+(al.length>6?" +"+(al.length-6):"")+(snd?"":"  — activa 🔇 SONIDO");
-  if(snd&&Date.now()-lastBeep>BEEP_EVERY){lastBeep=Date.now();beep()}}
+ if(al.length){$("alert").textContent="🔔 ALERTA ≤"+ALERT_H+" h: "+al.slice(0,6).map(x=>x[0]+" ("+x[1]+") "+hrs(x).toFixed(1)+"h").join(" · ")+(al.length>6?" +"+(al.length-6):"")+(snd||!hot?"":"  — activa 🔇 SONIDO");
+  if(hot&&snd&&Date.now()-lastBeep>BEEP_EVERY){lastBeep=Date.now();beep()}}
  $("ttl").textContent=V==="abt"?"❌ Abortados – avisos a PC":V==="det"?"🏭 "+sel:"🚨 Andon de Estampado";
  if(S)$("foot").textContent="Inventario tomado: "+fdt(S.base)+" · "+S.src+" · "+S.rows.length+" sebangos"+(S.dup?" ("+S.dup+" duplicados omitidos)":"")+" · las horas bajan solo en horas productivas de turno";else $("foot").textContent="Sin datos: carga el CSV de inventario";
  if(S){const ls=lastShift(now),st=S.base<ls.st-3e5&&now-ls.st>18e5;$("foot").style.color=st?"var(--C)":"";$("foot").style.fontWeight=st?"800":"";if(st)$("foot").textContent="⚠ INVENTARIO SIN ACTUALIZAR desde el inicio de T"+ls.s+" ("+hm(ls.st)+") · "+$("foot").textContent}
  if(!S)return;
  if(V==="home")$("grid").innerHTML=PR.map(p=>{const ps=pstat(p,now),r=ps.it,m=r.length?Math.min(...r.map(i=>i.h)):999,c=cl(m),n=r.filter(i=>i.c==="C"&&!i.run).length,u=r.filter(i=>i.run).length,q=curSlot(p,now);
-  return `<button class="press ${c}" onclick="sel='${p}';V='det';render()"><b>${p}</b><small>${r.length} sebangos${u?" · ▶"+u:""}</small><small style="color:var(--tx)">${q.L?(q.act?"Patrón ":"Próx. ")+q.L+" · T"+q.s:""}</small><em>${EM[c]}</em><strong>${n?n+" CRÍTICO"+(n>1?"S":""):LB[c]}</strong><small style="color:var(--${pcc(ps.pc)});font-weight:800">Cumpl. patrón ${ps.pc==null?"–":ps.pc+"%"}</small></button>`}).join("");
+  return `<button class="press ${c}${r.some(i=>!i.run&&i.h<=ALERT_H)?" blink":""}" onclick="sel='${p}';V='det';lastBeep=0;render()"><b>${p}</b><small>${r.length} sebangos${u?" · ▶"+u:""}</small><small style="color:var(--tx)">${q.L?(q.act?"Patrón ":"Próx. ")+q.L+" · T"+q.s:""}</small><em>${EM[c]}</em><strong>${n?n+" CRÍTICO"+(n>1?"S":""):LB[c]}</strong><small style="color:var(--${pcc(ps.pc)});font-weight:800">Cumpl. patrón ${ps.pc==null?"–":ps.pc+"%"}</small></button>`}).join("");
  if(V==="det"){const k={C:0,A:0,X:0,K:0},ps=pstat(sel,now),it=ps.it,q=curSlot(sel,now);it.forEach(i=>k[i.c]++);
   $("sum").innerHTML=`<div class="w pat"><small>${q.act?"PATRÓN EN CURSO":"PRÓXIMO PATRÓN"}</small><span>${q.L?q.L+" · T"+q.s:"–"}</span><small>${fh(SH[q.s][0])} – ${fh(SH[q.s][1])}</small></div>`+ORD.map(c=>`<div class="${c}"><span>${k[c]}</span><small>${EM[c]} ${LB[c]}</small></div>`).join("")+`<div class="w ${pcc(ps.pc)}"><span>${ps.pc==null?"–":ps.pc+"%"}</span><small>CUMPLIMIENTO PATRÓN</small></div>`;
   const cv=i=>i.run?"":!i.nr?"sin calendario":i.nr.now?"corre ahora":i.def>0?"SE AGOTA ANTES · faltan "+i.def.toFixed(1)+" h":"alcanza · sobran "+(i.h-i.gap).toFixed(1)+" h";
