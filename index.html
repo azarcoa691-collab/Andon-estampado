@@ -34,6 +34,8 @@ h1{margin:0;font-size:clamp(1rem,3vh,1.8rem);font-weight:800;white-space:nowrap;
 .row.isrun{background:#eaf7ee}
 #abt{overflow:auto}table{width:100%;border-collapse:collapse;font-size:clamp(.75rem,1.9vh,1rem)}th{text-align:left;color:var(--mut);font-size:.72rem;text-transform:uppercase;padding:6px;position:sticky;top:0;background:#fff}td{padding:8px 6px;border-top:1px solid #e5e7eb}
 .tag{border-radius:20px;padding:3px 9px;color:#fff;font-weight:800;font-size:.75rem;white-space:nowrap}.mini{border:0;border-radius:20px;padding:5px 10px;background:var(--K);color:#fff;font-weight:800;cursor:pointer}
+#qalert{flex:none;margin:0 12px 8px;background:#6f42c1;color:#fff;border-radius:14px;padding:8px 14px;font-weight:800;font-size:clamp(.75rem,2vh,1rem)}
+body.alarm::after{content:"";position:fixed;inset:0;border:10px solid var(--C);pointer-events:none;animation:bl .6s infinite;z-index:50}
 .foot{flex:none;text-align:center;color:var(--mut);font-style:italic;font-size:clamp(.6rem,1.5vh,.78rem);padding:5px}
 dialog{border:0;border-radius:22px;padding:20px;width:min(420px,92vw);box-shadow:0 20px 50px rgba(0,0,0,.35)}dialog::backdrop{background:rgba(0,0,0,.5)}
 dialog h3{margin:0 0 12px}dialog label{display:block;font-weight:700;margin:10px 0 4px;font-size:.9rem}dialog input,dialog select,dialog textarea{width:100%;padding:10px;border:1px solid #ced4da;border-radius:10px;font:inherit;font-size:1rem}
@@ -43,11 +45,12 @@ dialog h3{margin:0 0 12px}dialog label{display:block;font-weight:700;margin:10px
 <header><div class="tt"><h1 id="ttl"></h1><div class="clk" id="clk"></div></div>
 <div class="btns"><button class="btn" id="snd" onclick="toggleSnd()">🔇 <span>SONIDO</span></button><button class="btn" id="abtn" onclick="V='abt';render()">❌ <span>ABORTADOS</span> <b id="abn"></b></button><button class="btn blue hid" id="back" onclick="home()">⬅️ <span>PRENSAS</span></button><button class="btn" onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()">⏱️ <span>PANTALLA COMPLETA</span></button><label class="btn">📂 <span>CARGAR CSV</span><input type="file" accept=".csv" id="f"></label></div></header>
 <div id="alert" class="hid"></div>
+<div id="qalert" class="hid"></div>
 <div id="home" class="card"><div class="grid" id="grid"></div></div>
 <div id="det" class="card hid"><div class="sum" id="sum"></div><div class="hd"><span>Sebango</span><span>Siguiente corrida (patrón)</span><span>Horas de alcance</span><span></span></div><div id="list"></div></div>
-<div id="abt" class="card hid"><div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap"><b style="flex:1;font-size:1.2rem">❌ Números abortados</b><button class="btn" onclick="exportAbt()">⬇️ EXPORTAR CSV</button></div><table><thead><tr><th>Fecha / hora</th><th>Prensa</th><th>Sebango</th><th>Piezas producidas</th><th>Motivo</th><th>Nota</th><th>Estado PC</th></tr></thead><tbody id="atb"></tbody></table></div>
+<div id="abt" class="card hid"><div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap"><b style="flex:1;font-size:1.2rem">❌ Números abortados</b><button class="btn" onclick="exportAbt()">⬇️ EXPORTAR CSV</button></div><table><thead><tr><th>Fecha / hora</th><th>Prensa</th><th>Sebango</th><th>Piezas producidas</th><th>Alcance actual</th><th>Motivo / nota</th><th>Calidad</th><th>Estado PC</th></tr></thead><tbody id="atb"></tbody></table></div>
 <div class="foot" id="foot"></div>
-<dialog id="dlg"><h3 id="dh">⛔ Abortar</h3><label>Piezas producidas</label><input id="dq" type="number" min="0" inputmode="numeric"><div id="dab"><label>Motivo</label><select id="dm"><option>Mala operación</option><option>Defecto de material</option><option>Troquel dañado</option><option>Otro</option></select><label>Nota (opcional)</label><textarea id="dn" rows="2"></textarea></div><div class="dbt"><button class="btn" style="background:#6c757d" onclick="dlg.close()">CANCELAR</button><button class="btn red" id="dok" onclick="saveDlg()">NOTIFICAR A PC</button></div></dialog>
+<dialog id="dlg"><h3 id="dh">⛔ Abortar</h3><label>Piezas producidas</label><input id="dq" type="number" min="0" inputmode="numeric"><div id="dab"><label>Motivo</label><select id="dm"><option>Mala operación</option><option>Defecto de material</option><option>Troquel dañado</option><option>Otro</option></select><label>Nota (opcional)</label><textarea id="dn" rows="2"></textarea><label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="dhold" style="width:auto"> 🛑 Piezas con sospecha de defecto: retener por calidad (pendiente de certificación)</label></div><div class="dbt"><button class="btn" style="background:#6c757d" onclick="dlg.close()">CANCELAR</button><button class="btn red" id="dok" onclick="saveDlg()">NOTIFICAR A PC</button></div></dialog>
 <script>
 const EMBED=null;
 const CSV_URL="INVENTARIO_GENERAL.csv",REFRESH_MS=60000;
@@ -61,12 +64,12 @@ TR1:"1A 2B 5A 6B 7A 8B 9A 12B 13A 14B 15A 16B 19A 20B 21C 22B 23A 26B 27A 28B 29
 TR2:"1A 2B 5C 6B 7A 8B 9C 12B 13A 14B 15C 16D 19A 20B 21C 22B 23A 26B 27C 28B 29A 30B",
 TR3:"1A 2B 5A 6B 7A 8B 9C 12B 13A 14B 15A 16B 19A 20B 21A 22B 23A 26B 27A 28B 29A 30B",
 TR4:"1A 2B 5C 6B 7A 8B 9A 12B 13A 14B 15C 16D 19A 20B 21A 22B 23A 26B 27C 28B 29A 30B",
-PG1:"1C 2D 3G 5E 6F 7C 8D 9E 10G 12B 13C 14D 15E 16F 17G 19C 20D 21E 22B 23C 24G 26D 27E 28F 29C 30D 31G",
+PG1:"1C 2D 5E 6F 7C 8D 9E 12B 13C 14D 15E 16F 19C 20D 21E 22B 23C 26D 27E 28F 29C 30D",
 PG2:"1A 2B 5C 6D 7E 8B 9C 12D 13A 14B 15C 16D 19A 20B 21C 22D 23A 26B 27C 28D 29E 30B",
 PG3:"1C 2D 5E 6B 7C 8D 9F 12B 13C 14D 15E 16B 19C 20D 21F 22B 23C 26D 27E 28B 29C 30D",
 PG4:"1F 2E 5B 6C 7D 8E 9B 12C 13D 14E 15B 16C 19D 20E 21B 22C 23F 26E 27B 28C 29D 30E"}};
 /* Ajustes */
-const T={C:2,A:8,X:24},ALERT_H=1,BEEP_EVERY=20000,SH={1:[6.5,16.6],2:[17+20/60,26.4]};
+const T={C:2,A:8,X:24},ALERT_H=1,BEEP_EVERY=12000,SH={1:[6.5,16.6],2:[17+20/60,26.4]};
 const $=id=>document.getElementById(id),dlg=$("dlg"),ORD=["C","A","X","K"];
 const LB={C:"CRÍTICO",A:"ATENCIÓN",X:"ACCIÓN",K:"CALMA"},EM={C:"🚨",A:"⚠️",X:"⚙️",K:"✅"};
 const cl=h=>h<T.C?"C":h<T.A?"A":h<T.X?"X":"K";
@@ -100,7 +103,7 @@ const addH=x=>{const a=ADD[x[0]];return a&&x[4]>0?a.filter(v=>v[0]>S.base).reduc
 const fin=x=>FIN[x[0]]>S.base?FIN[x[0]]:0;
 /* horas productivas de turno entre dos instantes (días con calendario; factor 17 h productivas / horas de turno) */
 const PK=17/((SH[1][1]-SH[1][0])+(SH[2][1]-SH[2][0]));
-const worked=(p,d)=>{const k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");return CAL[k]?letter(p,d)!==null:d.getDay()>0&&d.getDay()<6};
+const worked=(p,d)=>{const k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");return d.getDay()>0&&d.getDay()<6&&(CAL[k]?letter(p,d)!==null:true)};
 function prod(p,t0,t1){if(t1<=t0)return 0;let tot=0;const d0=new Date(t0);for(let o=-1;;o++){const d=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+o);if(at(d,0)>t1)break;if(!worked(p,d))continue;
  for(const s of[1,2]){const a=Math.max(t0,at(d,SH[s][0])),b=Math.min(t1,at(d,SH[s][1]));if(b>a)tot+=b-a}}return tot/36e5*PK}
 const hrs=x=>S?Math.max(0,x[2]+addH(x)-prod(x[1],S.base,Date.now())):0;
@@ -115,27 +118,31 @@ function nextRun(x,now,f){f=f||0;const P=pats(x),n=now.getTime();for(let o=-1;o<
 function curSlot(p,now){const n=now.getTime();for(const o of[-1,0]){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+o);for(const s of[1,2])if(at(d,SH[s][0])<=n&&n<at(d,SH[s][1]))return{L:letter(p,d),s,act:1}}
  const h=now.getHours()+now.getMinutes()/60;return{L:letter(p,now),s:h<SH[1][0]?1:2,act:0}}
 const fh=h=>String(Math.floor(h)%24).padStart(2,"0")+":"+String(Math.round(h%1*60)).padStart(2,"0");
-function info(x,now){const h=hrs(x),f=fin(x),nr=nextRun(x,now,f),gap=nr&&!nr.now?prod(x[1],now.getTime(),nr.st):0;return{x,h,c:cl(h),run:RUN[x[0]],f,nr,gap,def:nr&&!nr.now?Math.max(0,gap-h):0}}
+function info(x,now){const h=hrs(x),f=fin(x),nr=nextRun(x,now,f),gap=nr&&!nr.now?prod(x[1],now.getTime(),nr.st):0;return{x,h,c:cl(h),run:RUN[x[0]],f,nr,gap,def:nr&&!nr.now?Math.max(0,gap-h):0,hold:ABT.filter(a=>a.s===x[0]&&a.hold&&!a.rel).reduce((t,a)=>t+a.q,0)}}
 /* Orden: 0 crítico sin correr · 1 corriendo · 2 NO cubre hasta su siguiente corrida de patrón (menos horas primero) · 3 cubierto, por orden de patrón */
 const rank=i=>i.run?1:i.c==="C"?0:i.def>0?2:3;
 function listFor(p,now){const it=S.rows.filter(x=>x[1]===p).map(x=>info(x,now));
  it.sort((a,b)=>rank(a)-rank(b)||(rank(a)<3?a.h-b.h:0)||(a.nr?a.nr.idx:999)-(b.nr?b.nr.idx:999)||a.h-b.h);return it}
 function pstat(p,now){const it=listFor(p,now),ev=it.filter(i=>i.nr||i.run),cov=ev.filter(i=>i.run||i.def<=0).length;return{it,pc:ev.length?Math.round(100*cov/ev.length):null}}
 const pcc=v=>v==null?"K":v>=90?"K":v>=70?"A":"C";
+function lastShift(now){const n=now.getTime();for(let o=0;o>-5;o--){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+o);if(d.getDay()<1||d.getDay()>5)continue;for(const s of[2,1]){const st=at(d,SH[s][0]);if(st<=n)return{st,s}}}return{st:0,s:1}}
 /* ---------- sonido ---------- */
-function beep(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();for(let i=0;i<4;i++){const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+i*.28;o.type="square";o.frequency.value=i%2?660:990;g.gain.setValueAtTime(.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.24);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.25)}}catch(e){}}
+function beep(sec){sec=sec||3;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();const t=AC.currentTime,g=AC.createGain();g.connect(AC.destination);g.gain.setValueAtTime(.8,t);g.gain.setValueAtTime(.8,t+sec-.05);g.gain.linearRampToValueAtTime(0,t+sec);
+ for(const[ty,k]of[["sawtooth",1],["square",.5]]){const o=AC.createOscillator();o.type=ty;o.frequency.setValueAtTime(600*k,t);for(let i=0;i<sec*2;i++)o.frequency.linearRampToValueAtTime((i%2?600:1300)*k,t+(i+1)*.5);o.connect(g);o.start(t);o.stop(t+sec)}}catch(e){}
+ try{navigator.vibrate&&navigator.vibrate([400,150,400,150,400])}catch(e){}}
 function toggleSnd(){snd=!snd;if(snd)beep();$("snd").className="btn"+(snd?" on":"");$("snd").firstChild.textContent=snd?"🔔 ":"🔇 "}
 function alerts(){return S?S.rows.filter(x=>PR.includes(x[1])&&!RUN[x[0]]&&hrs(x)<=ALERT_H).sort((a,b)=>hrs(a)-hrs(b)):[]}
 /* ---------- corrida / aborto ---------- */
 function saveRun(){LS.set("andon.run",RUN)}
 function act(s,a){const x=S.rows.find(r=>r[0]===s);if(!x)return;
  if(a==="run"){if(RUN[s])return;RUN[s]=Date.now();saveRun()}
- else{pend=x;pmode=a;$("dh").textContent=(a==="end"?"✔ Terminó ":"⛔ Abortar ")+s+" · "+x[1];$("dab").classList.toggle("hid",a==="end");$("dok").textContent=a==="end"?"GUARDAR":"NOTIFICAR A PC";$("dq").value="";$("dn").value="";dlg.showModal();return}
+ else{pend=x;pmode=a;$("dh").textContent=(a==="end"?"✔ Terminó ":"⛔ Abortar ")+s+" · "+x[1];$("dab").classList.toggle("hid",a==="end");$("dok").textContent=a==="end"?"GUARDAR":"NOTIFICAR A PC";$("dq").value="";$("dn").value="";$("dhold").checked=false;dlg.showModal();return}
  render()}
 function saveDlg(){const q=parseInt($("dq").value);if(isNaN(q)||q<0){$("dq").focus();return}const x=pend;if(!x)return;const s=x[0],t=Date.now();
- if(pmode==="abort"){if(ABT.some(a=>a.s===s&&t-a.t<5000)){dlg.close();return}ABT.unshift({id:t,t,s,p:x[1],q,m:$("dm").value,n:$("dn").value.trim(),ok:null});LS.set("andon.abort",ABT)}
+ if(pmode==="abort"){if(ABT.some(a=>a.s===s&&t-a.t<5000)){dlg.close();return}ABT.unshift({id:t,t,s,p:x[1],q,h:x[4]>0?q/(x[4]/17):null,m:$("dm").value,n:$("dn").value.trim(),hold:!!$("dhold").checked,rel:null,ok:null});LS.set("andon.abort",ABT);if(ABT[0].hold){delete RUN[s];saveRun();pend=null;dlg.close();render();return}}
  else{if(FIN[s]&&t-FIN[s]<5000){dlg.close();return}FIN[s]=t;LS.set("andon.fin",FIN)}
  (ADD[s]=ADD[s]||[]).push([t,q]);LS.set("andon.add",ADD);delete RUN[s];saveRun();pend=null;dlg.close();render()}
+function relAbt(id,m){const a=ABT.find(v=>v.id===id);if(!a||a.rel)return;a.rel={t:Date.now(),r:m};LS.set("andon.abort",ABT);if(m==="lib"){(ADD[a.s]=ADD[a.s]||[]).push([Date.now(),a.q]);LS.set("andon.add",ADD)}render()}
 function ackAbt(id){const a=ABT.find(v=>v.id===id);if(a){a.ok=Date.now();LS.set("andon.abort",ABT);render()}}
 function exportAbt(){const L=[["Fecha","Prensa","Sebango","Piezas producidas","Motivo","Nota","Atendido por PC"],...ABT.map(a=>[fdt(a.t),a.p,a.s,a.q,a.m,a.n,a.ok?fdt(a.ok):"PENDIENTE"])];
  const b=new Blob(["\uFEFF"+L.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\n")],{type:"text/csv"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="abortados.csv";a.click()}
@@ -143,22 +150,26 @@ addEventListener("storage",e=>{if(e.key==="andon.abort"){const n=ABT.filter(a=>!
 /* ---------- render ---------- */
 function home(){V="home";sel=null;render()}
 function render(){
- if(dlg.open)return;const now=new Date(),pn=ABT.filter(a=>!a.ok).length;
+ if(dlg.open)return;const now=new Date(),pn=ABT.filter(a=>!a.ok||(a.hold&&!a.rel)).length;
  $("abn").textContent=pn?"("+pn+")":"";$("abtn").className="btn"+(pn?" red":"");
  $("home").classList.toggle("hid",V!=="home");$("det").classList.toggle("hid",V!=="det");$("abt").classList.toggle("hid",V!=="abt");$("back").classList.toggle("hid",V==="home");
- const al=alerts();$("alert").classList.toggle("hid",!al.length);
+ const al=alerts(),qh=ABT.filter(a=>a.hold&&!a.rel);$("alert").classList.toggle("hid",!al.length);document.body&&document.body.classList.toggle("alarm",al.length>0);
+ $("qalert").classList.toggle("hid",!qh.length);if(qh.length)$("qalert").textContent="🛑 PIEZAS DETENIDAS POR CALIDAD (pendiente certificación): "+qh.slice(0,5).map(a=>a.s+" ("+a.p+") "+a.q+" pzs").join(" · ")+(qh.length>5?" +"+(qh.length-5):"");
  if(al.length){$("alert").textContent="🔔 ALERTA ≤"+ALERT_H+" h: "+al.slice(0,6).map(x=>x[0]+" ("+x[1]+") "+hrs(x).toFixed(1)+"h").join(" · ")+(al.length>6?" +"+(al.length-6):"")+(snd?"":"  — activa 🔇 SONIDO");
   if(snd&&Date.now()-lastBeep>BEEP_EVERY){lastBeep=Date.now();beep()}}
  $("ttl").textContent=V==="abt"?"❌ Abortados – avisos a PC":V==="det"?"🏭 "+sel:"🚨 Andon de Estampado";
  if(S)$("foot").textContent="Inventario tomado: "+fdt(S.base)+" · "+S.src+" · "+S.rows.length+" sebangos"+(S.dup?" ("+S.dup+" duplicados omitidos)":"")+" · las horas bajan solo en horas productivas de turno";else $("foot").textContent="Sin datos: carga el CSV de inventario";
+ if(S){const ls=lastShift(now),st=S.base<ls.st-3e5&&now-ls.st>18e5;$("foot").style.color=st?"var(--C)":"";$("foot").style.fontWeight=st?"800":"";if(st)$("foot").textContent="⚠ INVENTARIO SIN ACTUALIZAR desde el inicio de T"+ls.s+" ("+hm(ls.st)+") · "+$("foot").textContent}
  if(!S)return;
  if(V==="home")$("grid").innerHTML=PR.map(p=>{const ps=pstat(p,now),r=ps.it,m=r.length?Math.min(...r.map(i=>i.h)):999,c=cl(m),n=r.filter(i=>i.c==="C"&&!i.run).length,u=r.filter(i=>i.run).length,q=curSlot(p,now);
   return `<button class="press ${c}" onclick="sel='${p}';V='det';render()"><b>${p}</b><small>${r.length} sebangos${u?" · ▶"+u:""}</small><small style="color:var(--tx)">${q.L?(q.act?"Patrón ":"Próx. ")+q.L+" · T"+q.s:""}</small><em>${EM[c]}</em><strong>${n?n+" CRÍTICO"+(n>1?"S":""):LB[c]}</strong><small style="color:var(--${pcc(ps.pc)});font-weight:800">Cumpl. patrón ${ps.pc==null?"–":ps.pc+"%"}</small></button>`}).join("");
  if(V==="det"){const k={C:0,A:0,X:0,K:0},ps=pstat(sel,now),it=ps.it,q=curSlot(sel,now);it.forEach(i=>k[i.c]++);
   $("sum").innerHTML=`<div class="w pat"><small>${q.act?"PATRÓN EN CURSO":"PRÓXIMO PATRÓN"}</small><span>${q.L?q.L+" · T"+q.s:"–"}</span><small>${fh(SH[q.s][0])} – ${fh(SH[q.s][1])}</small></div>`+ORD.map(c=>`<div class="${c}"><span>${k[c]}</span><small>${EM[c]} ${LB[c]}</small></div>`).join("")+`<div class="w ${pcc(ps.pc)}"><span>${ps.pc==null?"–":ps.pc+"%"}</span><small>CUMPLIMIENTO PATRÓN</small></div>`;
-  const cv=i=>i.run?"":!i.nr?"sin calendario":i.nr.now?"corre ahora":i.def>0?"NO CUBRE · faltan "+i.def.toFixed(1)+" h":"cubre +"+(i.h-i.gap).toFixed(1)+" h";
-  $("list").innerHTML=it.map(i=>`<div class="row ${i.c}${i.run?" isrun":""}"><span class="s">${i.x[0]}</span><span class="pt${i.run?" run":""}">${i.run?"▶ CORRIENDO "+hm(i.run):i.nr?i.nr.lbl:"Sin patrón"}<small class="${i.def>0?"bad":""}">${(i.f?"✔ terminó "+hm(i.f)+" · ":"")+cv(i)}</small></span><span class="h" style="color:var(--${i.c})">${i.h.toFixed(1)}h<small>${EM[i.c]} ${LB[i.c]}</small></span><span class="ac">${i.run?`<button class="ib ok" title="Terminó" onclick="act('${i.x[0]}','end')">✔</button><button class="ib no" title="Abortar" onclick="act('${i.x[0]}','abort')">⛔</button>`:`<button class="ib go" title="Ya está corriendo" onclick="act('${i.x[0]}','run')">▶</button>`}</span><div class="bar"><i class="bg${i.c}" style="width:${pct(i.h)}%"></i></div></div>`).join("")||"<p>Sin sebangos</p>";fit()}
- if(V==="abt")$("atb").innerHTML=ABT.map(a=>`<tr><td>${fdt(a.t)}</td><td>${a.p}</td><td><b>${a.s}</b></td><td><b>${a.q}</b></td><td>${a.m}</td><td>${a.n||"–"}</td><td>${a.ok?`<span class="tag bgK">ATENDIDO ${hm(a.ok)}</span>`:`<span class="tag bgC">PENDIENTE</span> <button class="mini" onclick="ackAbt(${a.id})">✔ Atendido</button>`}</td></tr>`).join("")||'<tr><td colspan="7">Sin abortados registrados</td></tr>'}
+  const cv=i=>i.run?"":!i.nr?"sin calendario":i.nr.now?"corre ahora":i.def>0?"SE AGOTA ANTES · faltan "+i.def.toFixed(1)+" h":"alcanza · sobran "+(i.h-i.gap).toFixed(1)+" h";
+  $("list").innerHTML=it.map(i=>`<div class="row ${i.c}${i.run?" isrun":""}"><span class="s">${i.x[0]}</span><span class="pt${i.run?" run":""}">${i.run?"▶ CORRIENDO "+hm(i.run):i.nr?i.nr.lbl:"Sin patrón"}<small class="${i.def>0||i.hold?"bad":""}">${(i.hold?"🛑 "+i.hold+" pzs en calidad · ":"")+(i.f?"✔ terminó "+hm(i.f)+" · ":"")+cv(i)}</small></span><span class="h" style="color:var(--${i.c})">${i.h.toFixed(1)}h<small>${EM[i.c]} ${LB[i.c]}</small></span><span class="ac">${i.run?`<button class="ib ok" title="Terminó" onclick="act('${i.x[0]}','end')">✔</button><button class="ib no" title="Abortar" onclick="act('${i.x[0]}','abort')">⛔</button>`:`<button class="ib go" title="Ya está corriendo" onclick="act('${i.x[0]}','run')">▶</button>`}</span><div class="bar"><i class="bg${i.c}" style="width:${pct(i.h)}%"></i></div></div>`).join("")||"<p>Sin sebangos</p>";fit()}
+ if(V==="abt")$("atb").innerHTML=ABT.map(a=>{const x=S.rows.find(r=>r[0]===a.s),h=x?hrs(x):null,hold=a.hold&&!a.rel;
+  const q=!a.hold?"–":hold?`<span class="tag" style="background:#6f42c1">🛑 DETENIDAS POR CALIDAD</span><br><button class="mini" onclick="relAbt(${a.id},'lib')">✔ Liberar</button> <button class="mini" style="background:var(--C)" onclick="relAbt(${a.id},'scrap')">✖ Scrap</button>`:a.rel.r==="lib"?`<span class="tag bgK">LIBERADAS ${hm(a.rel.t)}</span>`:`<span class="tag" style="background:#6c757d">SCRAP ${hm(a.rel.t)}</span>`;
+  return `<tr><td>${fdt(a.t)}</td><td>${a.p}</td><td><b>${a.s}</b></td><td><b>${a.q}</b> pzs${a.h!=null?`<br><small>≈ ${a.h.toFixed(1)} h de alcance</small>`:""}</td><td>${h==null?"–":`<b style="color:var(--${cl(h)})">${h.toFixed(1)} h</b>`}${hold?"<br><small>sin contar piezas retenidas</small>":""}</td><td>${a.m}${a.n?"<br><small>"+a.n+"</small>":""}</td><td>${q}</td><td>${a.ok?`<span class="tag bgK">ATENDIDO ${hm(a.ok)}</span>`:`<span class="tag bgC">PENDIENTE</span> <button class="mini" onclick="ackAbt(${a.id})">✔ Atendido</button>`}</td></tr>`}).join("")||'<tr><td colspan="8">Sin abortados registrados</td></tr>'}
 function fit(){const L=$("list"),n=L.children.length;if(!n||V!=="det")return;const W=L.clientWidth,H=L.clientHeight,g=6,maxC=Math.max(1,Math.floor(W/400));
  let c=1;for(;c<maxC;c++){const r=Math.ceil(n/c);if((H-g*(r-1))/r>=60)break}
  const r=Math.ceil(n/c);let rh=(H-g*(r-1))/r;rh=Math.min(Math.max(rh,50),110);
