@@ -1,32 +1,25 @@
-# 🚨 Andon de Estampado
+# 🚨 Andon de Estampado v2
 
-Sistema andon HTML5 que muestra el alcance (SCOPE HOURS) de cada sebango por prensa, con estatus por colores.
+Archivos: `index.html` (app) · `INVENTARIO_GENERAL.csv` (inventario que carga PC).
 
-## Archivos
-- `index.html` – la aplicación (un solo archivo, sin dependencias)
-- `INVENTARIO_GENERAL.csv` – base de datos (se relee automáticamente cada 60 s)
+## Publicar (GitHub Pages)
+1. Sube `index.html` y `INVENTARIO_GENERAL.csv` al repositorio (reemplaza los anteriores).
+2. Settings → Pages → Branch `main` / `(root)`.
 
-## Publicar en GitHub Pages
-1. Crea un repositorio nuevo en GitHub (ej. `Andon`).
-2. Sube `index.html`, `INVENTARIO_GENERAL.csv` y este `README.md` (Add file → Upload files).
-3. Ve a **Settings → Pages**. En *Branch* elige `main` y carpeta `/ (root)`. Guarda.
-4. En 1–2 minutos estará en `https://TU-USUARIO.github.io/Andon/`.
+## Flujo diario de PC
+Cuando PC toma el inventario: sube el nuevo `INVENTARIO_GENERAL.csv` al repo (mismo nombre) **o** abre el andon y usa **📂 CARGAR CSV**.
+La hora de carga es la base: desde ahí las horas de alcance bajan en tiempo real.
+Horas de alcance = `INVENTORY PIECES ÷ (Daily usage (pcs) ÷ 17)` (si faltan datos usa `SCOPE HOURS`).
+Columnas requeridas: `SEBANGO`, `Process Name`, `Daily usage (pcs)`, `INVENTORY PIECES`, `Patron`.
 
-## Actualizar el inventario
-Sube una nueva versión de `INVENTARIO_GENERAL.csv` con **el mismo nombre** (Add file → Upload files → Commit).
-Las pantallas la toman solas en el siguiente ciclo (GitHub Pages puede tardar 1–2 min en publicar el cambio).
-El CSV debe conservar las columnas `SEBANGO`, `Process Name` y `SCOPE HOURS`.
+## Orden de la lista
+1. Críticos en rojo (sin correr) · 2. En corrida · 3. Resto por siguiente corrida según su **Patron** (col. S) y el calendario de la prensa. Empate → menos horas primero.
 
-## Ajustes (en `index.html`)
-- Umbrales de estatus: `const T={C:2,A:8,X:24}` (horas)
-- Frecuencia de actualización: `REFRESH_MS` (milisegundos)
-- Archivo de datos: `CSV_URL`
+## Botones por sebango
+▶ ya está corriendo · ✔ terminó · ⛔ abortar (pide piezas producidas y motivo y avisa a PC en la ventana **❌ ABORTADOS**).
 
-| Estatus | Rango (h) |
-|---|---|
-| 🚨 Crítico | < 2 |
-| ⚠️ Atención | 2 – 8 |
-| ⚙️ Acción | 8 – 24 |
-| ✅ Calma | ≥ 24 |
+## Sonido
+Pulsa **🔇 SONIDO** una vez (el navegador lo exige). Suena cada 20 s si algún sebango no corriendo tiene ≤ 1 h.
 
-> Nota: el repo en GitHub Pages gratuito es público; no subas datos confidenciales.
+## Ajustes en `index.html`
+`T` umbrales · `ALERT_H` horas de alarma · `SH` horarios de turno (T1 06:30–16:36, T2 17:20–02:24) · `CAL` calendarios (agregar mes nuevo = nueva clave `"2026-11"`).
