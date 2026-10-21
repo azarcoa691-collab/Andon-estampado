@@ -44,7 +44,7 @@ dialog h3{margin:0 0 12px}dialog label{display:block;font-weight:700;margin:10px
 @media(max-width:560px){:root{--cols:1fr 1.3fr 1fr auto}.sum{grid-template-columns:repeat(4,1fr)}.sum .w{grid-column:span 2}}
 </style></head><body>
 <header><div class="tt"><h1 id="ttl"></h1><div class="clk" id="clk"></div></div>
-<div class="btns"><button class="btn" id="snd" onclick="toggleSnd()">🔇 <span>SONIDO</span></button><button class="btn" id="abtn" onclick="V='abt';render()">❌ <span>ABORTADOS</span> <b id="abn"></b></button><button class="btn blue hid" id="back" onclick="home()">⬅️ <span>PRENSAS</span></button><button class="btn" onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()">⏱️ <span>PANTALLA COMPLETA</span></button><label class="btn blue">📂 <span>CARGAR CSV MANUAL</span><input type="file" accept=".csv" id="f"></label></div></header>
+<div class="btns"><button class="btn" id="snd" onclick="toggleSnd()">🔇 <span>SONIDO</span></button><button class="btn" id="abtn" onclick="V='abt';render()">❌ <span>ABORTADOS</span> <b id="abn"></b></button><button class="btn blue hid" id="back" onclick="home()">⬅️ <span>PRENSAS</span></button><button class="btn" onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()">⏱️ <span>PANTALLA COMPLETA</span></button><label class="btn blue">📂 <span>CARGAR CSV DE PC</span><input type="file" accept=".csv" id="f"></label></div></header>
 <div id="alert" class="hid"></div>
 <div id="qalert" class="hid"></div>
 <div id="home" class="card"><div class="grid" id="grid"></div></div>
@@ -73,23 +73,86 @@ const cl=h=>h<T.C?"C":h<T.A?"A":h<T.X?"X":"K";
 const PTS=[[0,5],[4.1,44],[12.6,70],[48.6,90],[120,100]];
 const pct=h=>{for(let i=1;i<PTS.length;i++)if(h<=PTS[i][0]){const[a,b]=[PTS[i-1],PTS[i]];return a[1]+(b[1]-a[1])*(h-a[0])/(b[0]-a[0])}return 100};
 const LS={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
 let S=LS.get("andon.data",null),RUN=LS.get("andon.run",{}),ABT=LS.get("andon.abort",[]),ADD=LS.get("andon.add",{}),FIN=LS.get("andon.fin",{}),pmode="abort",V="home",sel=null,snd=false,lastBeep=0,AC=null,pend=null;
+let MASTER_PAT = {}; // Diccionario para almacenar el match de patrones desde GitHub
+
 const hm=t=>new Date(t).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
 const fdt=t=>new Date(t).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"});
+
+// DESCARGAR PATRONES MAESTROS DESDE GITHUB (Para cruzar con el archivo de PC)
+async function fetchPatronesMaster() {
+  try {
+    const r = await fetch("https://azarcoa691-collab.github.io/Andon-estampado/INVENTARIO_GENERAL.csv?t=" + Date.now());
+    if (r.ok) {
+      const t = await r.text();
+      const rows = parse(t.replace(/^\uFEFF/,""));
+      const hi = rows.findIndex(r => r.some(v => v.trim().toUpperCase() === "SEBANGO"));
+      if (hi >= 0) {
+        const H = rows[hi].map(v => v.trim().toUpperCase());
+        const iS = H.indexOf("SEBANGO"), iT = H.indexOf("PATRON");
+        if (iS >= 0 && iT >= 0) {
+          rows.slice(hi+1).forEach(r => {
+            const s = (r[iS]||"").trim();
+            if(s) MASTER_PAT[s] = (r[iT]||"").trim();
+          });
+        }
+      }
+    }
+  } catch(e) { console.warn("No se pudo obtener el catálogo de patrones desde GitHub."); }
+}
+
 function parse(t){const R=[];let r=[],c="",q=false;for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}else if(ch=='"')q=true;else if(ch==","){r.push(c);c=""}else if(ch=="\n"){r.push(c);R.push(r);r=[];c=""}else if(ch!="\r")c+=ch}r.push(c);R.push(r);return R}
+
 function toRows(text){
- const rows=parse(text.replace(/^\uFEFF/,"")),hi=rows.findIndex(r=>r.some(v=>v.trim().toUpperCase()=== "SEBANGO"));if(hi<0)throw 0;
- const H=rows[hi].map(v=>v.trim().toUpperCase()),ix=n=>H.indexOf(n),iS=ix("SEBANGO"),iP=ix("PROCESS NAME"),iD=ix("DAILY USAGE (PCS)"),iI=ix("INVENTORY PIECES"),iH=ix("SCOPE HOURS"),iT=ix("PATRON");
- if(iP<0)throw 0;const m=new Map();let dup=0;
- rows.slice(hi+1).forEach(r=>{const s=(r[iS]||"").trim(),p=(r[iP]||"").trim();if(!s||!p)return;
+ const rows=parse(text.replace(/^\uFEFF/,""));
+ const hi=rows.findIndex(r=>r.some(v=>v.trim().toUpperCase()=== "SEBANGO"));
+ if(hi<0) throw new Error("No se encontró la columna SEBANGO");
+ 
+ const H=rows[hi].map(v=>v.trim().toUpperCase()),ix=n=>H.indexOf(n);
+ const iS=ix("SEBANGO"),iP=ix("PROCESS NAME"),iD=ix("DAILY USAGE (PCS)"),iI=ix("INVENTORY PIECES"),iH=ix("SCOPE HOURS");
+ const iT=ix("PATRON"); // Ya no exigimos que el archivo de PC tenga esta columna
+ 
+ if(iP<0 || iS<0 || iD<0 || iI<0) throw new Error("Faltan columnas obligatorias (SEBANGO, PROCESS NAME, DAILY USAGE (PCS), INVENTORY PIECES)");
+ 
+ const m=new Map();let dup=0;
+ rows.slice(hi+1).forEach(r=>{
+  const s=(r[iS]||"").trim(),p=(r[iP]||"").trim();if(!s||!p)return;
   const num=v=>parseFloat(String(v||"").replace(/[,\s]/g,""))||0,dly=num(r[iD]),inv=num(r[iI]),sc=num(r[iH]),h0=dly>0&&inv>=0&&r[iI]!==""?inv/(dly/17):sc;
-  const x=[s,p,+h0.toFixed(3),(r[iT]||"").trim(),dly],k=s+"|"+p;
-  if(m.has(k)){dup++;if(x[2]<m.get(k)[2])m.set(k,x)}else m.set(k,x)});
- if(!m.size)throw 0;return{rows:[...m.values()],dup}}
-function setData(text,src,base){const h=hash(text);S={rows:toRows(text).rows,dup:toRows(text).dup,base,src,hash:h};LS.set("andon.data",S);render()}
-function hash(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return s.length+":"+h}
-$("f").onchange=async e=>{const fl=e.target.files[0];if(!fl)return;try{const b=await fl.arrayBuffer();let t;try{t=new TextDecoder("utf-8",{fatal:true}).decode(b)}catch(x){t=new TextDecoder("latin1").decode(b)}
- setData(t,fl.name,Date.now())}catch(x){alert("No se pudo leer el CSV (Verifica columnas: SEBANGO, Process Name, Daily usage (pcs), INVENTORY PIECES, Patron).")}e.target.value=""};
+  
+  // MATCH DE PATRONES: Usar el dict de GitHub si existe, o el del CSV si viene incluido
+  const patron = MASTER_PAT[s] || (iT >= 0 ? (r[iT]||"").trim() : "");
+  
+  const x=[s,p,+h0.toFixed(3),patron,dly],k=s+"|"+p;
+  if(m.has(k)){dup++;if(x[2]<m.get(k)[2])m.set(k,x)}else m.set(k,x)
+ });
+ if(!m.size) throw new Error("El archivo está vacío o no tiene datos válidos");
+ return{rows:[...m.values()],dup}
+}
+
+function setData(text,src,base){
+  try {
+    const parsed = toRows(text);
+    S={rows:parsed.rows,dup:parsed.dup,base,src};
+    LS.set("andon.data",S);
+    render();
+  } catch (error) {
+    alert("❌ Error procesando el archivo de PC:\n" + error.message);
+  }
+}
+
+$("f").onchange=async e=>{
+  const fl=e.target.files[0];if(!fl)return;
+  try{
+    const b=await fl.arrayBuffer();
+    let t; try{t=new TextDecoder("utf-8",{fatal:true}).decode(b)}catch(x){t=new TextDecoder("latin1").decode(b)}
+    setData(t,fl.name,Date.now());
+  }catch(x){
+    alert("❌ Ocurrió un problema al leer el archivo CSV. Asegúrate de guardarlo como 'CSV (delimitado por comas)'.");
+  }
+  e.target.value="";
+};
+
 const addH=x=>{const a=ADD[x[0]];return a&&x[4]>0?a.filter(v=>v[0]>S.base).reduce((t,v)=>t+v[1],0)/(x[4]/17):0};
 const fin=x=>FIN[x[0]]>S.base?FIN[x[0]]:0;
 const PK=17/((SH[1][1]-SH[1][0])+(SH[2][1]-SH[2][0]));
@@ -161,6 +224,9 @@ function fit(){const L=$("list"),n=L.children.length;if(!n||V!=="det")return;con
  L.style.setProperty("--rh",rh+"px");L.style.gridTemplateRows=`repeat(${r},${rh}px)`;L.style.gridAutoColumns="minmax(0,1fr)"}
 addEventListener("resize",fit);document.addEventListener("fullscreenchange",()=>setTimeout(fit,150));
 const tick=()=>$("clk").textContent=new Date().toLocaleString("es-MX");setInterval(tick,1000);tick();
+
+// Iniciar descarga de patrones maestros
+fetchPatronesMaster();
 setInterval(render,10000);
 render();
 </script></body></html>
