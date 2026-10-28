@@ -26,7 +26,7 @@ h1{margin:0;font-size:clamp(1rem,3vh,1.8rem);font-weight:800;white-space:nowrap;
 #list{flex:1;min-height:0;display:grid;grid-auto-flow:column;gap:6px;overflow:auto}
 .row{position:relative;display:grid;grid-template-columns:var(--cols);gap:6px;align-items:center;background:#f8f9fb;border-radius:calc(var(--rh)*.25);border-left:calc(var(--rh)*.1) solid;padding:0 calc(var(--rh)*.15) calc(var(--rh)*.1) calc(var(--rh)*.15);overflow:hidden;min-width:0}
 .n{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#212529;color:#fff;font-weight:900;font-size:15px}.n.man{background:#0d6efd}.n.run{background:var(--K)}
-.s{font-size:max(17px,calc(var(--rh)*.44));font-weight:800;color:var(--tx)}
+.s{font-size:max(17px,calc(var(--rh)*.44));font-weight:800;color:var(--tx)}.s.p2{font-size:max(13px,calc(var(--rh)*.3))}
 .pt{font-size:max(11px,calc(var(--rh)*.21));font-weight:800;color:#495057;line-height:1.15}.pt.run{color:var(--K)}.pt small{display:block;font-weight:700;font-size:.8em;color:var(--mut)}.pt small.bad{color:var(--C)}
 .h{text-align:right;font-size:max(19px,calc(var(--rh)*.48));font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
 .h small{display:block;font-size:max(10px,calc(var(--rh)*.16));margin-top:2px}
@@ -58,7 +58,7 @@ dialog h3{margin:0 0 12px}dialog label{display:block;font-weight:700;margin:10px
 <div id="abt" class="card hid"><div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap"><b style="flex:1;font-size:1.2rem">❌ Números abortados</b><button class="btn" onclick="testMail()">✉️ PROBAR AVISO</button><button class="btn" onclick="exportAbt()">⬇️ EXPORTAR CSV</button></div><table><thead><tr><th>Fecha / hora</th><th>Prensa</th><th>Sebango</th><th>Piezas producidas</th><th>Alcance actual</th><th>Motivo / nota</th><th>Calidad</th><th>Estado PC</th></tr></thead><tbody id="atb"></tbody></table></div>
 <div class="foot" id="foot"></div><div id="toast" class="hid"></div>
 <dialog id="dlgLogin"><h3>🔐 Acceso de PC</h3><label>Correo</label><input id="lmail" type="email" autocomplete="username"><label>Contraseña</label><input id="lpass" type="password" autocomplete="current-password"><div id="lerr" style="color:#dc3545;font-weight:700;margin-top:8px"></div><div class="dbt"><button class="btn" style="background:#6c757d" id="lno">CANCELAR</button><button class="btn blue" id="lgo">ENTRAR</button></div></dialog>
-<dialog id="dlg"><h3 id="dh"></h3><label>Piezas producidas</label><input id="dq" type="number" min="0" inputmode="numeric"><div id="dab"><label>Motivo</label><select id="dm"><option>Mala operación</option><option>Defecto de material</option><option>Troquel dañado</option><option>Falta de blank</option><option>Otro</option></select><label>Nota (opcional)</label><textarea id="dn" rows="2"></textarea><label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="dhold" style="width:auto"> 🛑 Piezas con sospecha de defecto: retener por calidad (pendiente de certificación)</label></div><div class="dbt"><button class="btn" style="background:#6c757d" onclick="dlg.close()">CANCELAR</button><button class="btn red" id="dok" onclick="saveDlg()"></button></div></dialog>
+<dialog id="dlg"><h3 id="dh"></h3><label>Piezas producidas (de cada número, si es par)</label><input id="dq" type="number" min="0" inputmode="numeric"><div id="dab"><label>Motivo</label><select id="dm"><option>Mala operación</option><option>Defecto de material</option><option>Troquel dañado</option><option>Falta de blank</option><option>Otro</option></select><label>Nota (opcional)</label><textarea id="dn" rows="2"></textarea><label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="dhold" style="width:auto"> 🛑 Piezas con sospecha de defecto: retener por calidad (pendiente de certificación)</label></div><div class="dbt"><button class="btn" style="background:#6c757d" onclick="dlg.close()">CANCELAR</button><button class="btn red" id="dok" onclick="saveDlg()"></button></div></dialog>
 <script>
 const EMB=null; /* solo vista previa; en GitHub es null */
 /* ===== Ajustes ===== */
@@ -74,7 +74,7 @@ const cl=h=>h<T.C?"C":h<T.A?"A":h<T.X?"X":"K";
 const PTS=[[0,5],[4.1,44],[12.6,70],[48.6,90],[120,100]];
 const pct=h=>{for(let i=1;i<PTS.length;i++)if(h<=PTS[i][0]){const[a,b]=[PTS[i-1],PTS[i]];return a[1]+(b[1]-a[1])*(h-a[0])/(b[0]-a[0])}return 100};
 const LS={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-let S=LS.get("andon.data",null),PAT=LS.get("andon.pat",{}),CAL=LS.get("andon.cal",{}),RUN,ABT,ADD,FIN,OVR,pmode="abort",V="home",sel=null,snd=false,lastBeep=0,AC=null,pend=null;
+let S=LS.get("andon.data",null),PAT=LS.get("andon.pat",{}),PARES=LS.get("andon.pares",[]),CAL=LS.get("andon.cal",{}),RUN,ABT,ADD,FIN,OVR,pmode="abort",V="home",sel=null,snd=false,lastBeep=0,AC=null,pend=null;
 const sv=k=>LS.set("andon."+k,{run:RUN,abort:ABT,add:ADD,fin:FIN,ovr:OVR}[k]);
 function loadState(){RUN=LS.get("andon.run",{});ABT=LS.get("andon.abort",[]);ADD=LS.get("andon.add",{});FIN=LS.get("andon.fin",{});OVR=LS.get("andon.ovr",{})}loadState();
 const pendN=()=>ABT.filter(a=>!a.ok||(a.hold&&!a.rel)).length;
@@ -102,10 +102,17 @@ $("f").onchange=async e=>{const fl=e.target.files[0];if(!fl)return;try{let rows;
 /* ===== Patrones y calendarios (desde GitHub) ===== */
 async function loadRefs(){const get=async u=>{const r=await fetch(u+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;return decode(await r.arrayBuffer())};
  try{const rows=parse(await get("PATRONES.csv")),{hi,ix}=hdr(rows),iS=ix("SEBANGO"),iT=ix("PATRON"),p={};rows.slice(hi+1).forEach(r=>{if(str(r[iS]))p[str(r[iS])]=str(r[iT]).toUpperCase()});PAT=p;LS.set("andon.pat",p)}catch(e){if(EMB&&!Object.keys(PAT).length)PAT=EMB.pat}
+ try{const ok=v=>/^[A-Z]\d+$/i.test(str(v));PARES=parse(await get("PARES.csv")).filter(r=>ok(r[0])&&ok(r[1])).map(r=>[str(r[0]).toUpperCase(),str(r[1]).toUpperCase()]);LS.set("andon.pares",PARES)}catch(e){if(EMB&&EMB.pares&&!PARES.length)PARES=EMB.pares}
  try{CAL=JSON.parse(await get("CALENDARIOS.json"));LS.set("andon.cal",CAL)}catch(e){if(EMB&&!Object.keys(CAL).length)CAL=EMB.cal}
  render()}
 const patOf=x=>(PAT[x[0]]||x[3]||"").toUpperCase();
 const pats=x=>new Set(patOf(x).split(",").map(v=>v.trim()).filter(Boolean));
+/* Pares espejo (izq/der) que salen del mismo troquel: una sola casilla "K507/K517". x[5] = [lado A, lado B] */
+let _r=null,_s=null,_p=null,_a=null;
+function rows(){if(!S)return[];if(_r&&_s===S&&_p===PARES&&_a===PAT)return _r;const m=new Map(S.rows.map(x=>[x[0],x])),used=new Set(),out=[];
+ PARES.forEach(([a,b])=>{const x=m.get(a),y=m.get(b);if(x&&y&&x[1]===y[1]&&!used.has(a)&&!used.has(b)){used.add(a);used.add(b);out.push([a+"/"+b,x[1],Math.min(x[2],y[2]),[...new Set([...pats(x),...pats(y)])].join(","),x[4],[x,y]])}});
+ _r=[...S.rows.filter(x=>!used.has(x[0])),...out];_s=S;_p=PARES;_a=PAT;return _r}
+const addPcs=(s,t,q)=>s.split("/").forEach(k=>(ADD[k]=ADD[k]||[]).push([t,q]));
 /* ===== Horas productivas ===== */
 function letter(p,d){const s=(CAL[mk(d)]||{})[CALKEY[p]];if(!s)return null;const m=(" "+s).match(new RegExp(" "+d.getDate()+"([A-Z])"));return m?m[1]:null}
 const worked=(p,d)=>d.getDay()>0&&d.getDay()<6&&(CAL[mk(d)]?letter(p,d)!==null:true); /* L–V; el T2 del viernes termina sáb 02:24 */
@@ -114,7 +121,8 @@ function prod(p,t0,t1){if(t1<=t0)return 0;let tot=0;const d0=new Date(t0);for(le
  for(const s of[1,2]){const a=Math.max(t0,at(d,SH[s][0])),b=Math.min(t1,at(d,SH[s][1]));if(b>a)tot+=b-a}}return tot/36e5*PK}
 const addH=x=>{const a=ADD[x[0]];return a&&x[4]>0?a.filter(v=>v[0]>S.base).reduce((t,v)=>t+v[1],0)/(x[4]/17):0};
 const fin=x=>FIN[x[0]]>S.base?FIN[x[0]]:0;
-const hrs=x=>S?Math.max(0,x[2]+addH(x)-prod(x[1],S.base,Date.now())):0;
+const hrs1=x=>Math.max(0,x[2]+addH(x)-prod(x[1],S.base,Date.now()));
+const hrs=x=>S?(x[5]?Math.min(...x[5].map(hrs1)):hrs1(x)):0; /* par espejo: manda el lado con menos inventario */
 /* ===== Patrón / siguiente corrida ===== */
 const DN=["dom","lun","mar","mié","jue","vie","sáb"];
 function nextRun(x,now,f){f=f||0;const P=pats(x),n=now.getTime();for(let o=-1;o<21;o++){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+o),L=letter(x[1],d);if(!L)continue;
@@ -124,10 +132,10 @@ function curSlot(p,now){const n=now.getTime();for(const o of[-1,0]){const d=new 
  const h=now.getHours()+now.getMinutes()/60;return{L:letter(p,now),s:h<SH[1][0]?1:2,act:0}}
 const fh=h=>String(Math.floor(h)%24).padStart(2,"0")+":"+String(Math.round(h%1*60)).padStart(2,"0");
 function lastShift(now){const n=now.getTime();for(let o=0;o>-5;o--){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+o);if(d.getDay()<1||d.getDay()>5)continue;for(const s of[2,1]){const st=at(d,SH[s][0]);if(st<=n)return{st,s}}}return{st:0,s:1}}
-function info(x,now){const h=hrs(x),f=fin(x),nr=nextRun(x,now,f),gap=nr&&!nr.now?prod(x[1],now.getTime(),nr.st):0;return{x,h,c:cl(h),run:RUN[x[0]],f,nr,gap,def:nr&&!nr.now?Math.max(0,gap-h):0,hold:ABT.filter(a=>a.s===x[0]&&a.hold&&!a.rel).reduce((t,a)=>t+a.q,0)}}
+function info(x,now){const h=hrs(x),f=fin(x),nr=nextRun(x,now,f),gap=nr&&!nr.now?prod(x[1],now.getTime(),nr.st):0;return{x,h,c:cl(h),run:RUN[x[0]],f,nr,gap,def:nr&&!nr.now?Math.max(0,gap-h):0,lim:(()=>{if(!x[5])return"";const[p,q]=x[5].map(hrs1);return Math.abs(p-q)>=1?(p<q?x[5][0][0]:x[5][1][0]):""})(),hold:ABT.filter(a=>a.s===x[0]&&a.hold&&!a.rel).reduce((t,a)=>t+a.q,0)}}
 /* Cola de corrida: 0 en prensa · 1 crítico · 2 no verde que se agota antes de su patrón · 3 patrón en curso · 4 VERDE que no alcanza a su patrón (se inserta tras el patrón en curso, sin desplazarlo) · 5 resto por orden de patrón */
 const rank=i=>i.run?0:i.c==="C"?1:i.def>0&&i.c!=="K"?2:i.nr&&i.nr.now?3:i.def>0?4:5;
-function listFor(p,now){const it=S.rows.filter(x=>x[1]===p).map(x=>info(x,now));
+function listFor(p,now){const it=rows().filter(x=>x[1]===p).map(x=>info(x,now));
  it.sort((a,b)=>rank(a)-rank(b)||(rank(a)<5?a.h-b.h:0)||(a.nr?a.nr.idx:999)-(b.nr?b.nr.idx:999)||a.h-b.h);
  const q=it.filter(i=>!i.run),o=OVR[p]||[],fx=[0,1].map(k=>q.find(i=>i.x[0]===o[k])||null);if(fx[1]===fx[0])fx[1]=null; /* posiciones 1 y 2 manuales */
  const rest=q.filter(i=>!fx.includes(i)),head=fx.map(f=>f||rest.shift()),out=[...head,...rest].filter(Boolean);
@@ -141,18 +149,18 @@ function beep(sec){sec=sec||3;try{AC=AC||new(window.AudioContext||window.webkitA
  for(const[ty,k]of[["sawtooth",1],["square",.5]]){const o=AC.createOscillator();o.type=ty;o.frequency.setValueAtTime(600*k,t);for(let i=0;i<sec*2;i++)o.frequency.linearRampToValueAtTime((i%2?600:1300)*k,t+(i+1)*.5);o.connect(g);o.start(t);o.stop(t+sec)}}catch(e){}
  try{navigator.vibrate&&navigator.vibrate([400,150,400,150,400])}catch(e){}}
 function toggleSnd(){snd=!snd;if(snd)beep();$("snd").className="btn"+(snd?" on":"");$("snd").firstChild.textContent=snd?"🔔 ":"🔇 "}
-const alerts=()=>S?S.rows.filter(x=>PR.includes(x[1])&&!RUN[x[0]]&&hrs(x)<=ALERT_H).sort((a,b)=>hrs(a)-hrs(b)):[];
+const alerts=()=>S?rows().filter(x=>PR.includes(x[1])&&!RUN[x[0]]&&hrs(x)<=ALERT_H).sort((a,b)=>hrs(a)-hrs(b)):[];
 /* ===== Corrida / terminó / aborto ===== */
-function act(s,a){const x=S.rows.find(r=>r[0]===s);if(!x)return;
+function act(s,a){const x=rows().find(r=>r[0]===s);if(!x)return;
  if(a==="run"){if(RUN[s])return;RUN[s]=Date.now();sv("run");Object.keys(OVR).forEach(p=>OVR[p]=OVR[p].map(v=>v===s?"":v));sv("ovr")}
  else{pend=x;pmode=a;$("dh").textContent=(a==="end"?"✔ Terminó ":"⛔ Abortar ")+s+" · "+x[1];$("dab").classList.toggle("hid",a==="end");$("dok").textContent=a==="end"?"GUARDAR":"NOTIFICAR A PC";$("dq").value="";$("dn").value="";$("dhold").checked=false;dlg.showModal();return}
  render()}
 function saveDlg(){const q=parseInt($("dq").value);if(isNaN(q)||q<0)return $("dq").focus();const x=pend;if(!x)return;const s=x[0],t=Date.now();
  if(pmode==="abort"){if(ABT.some(a=>a.s===s&&t-a.t<5000))return dlg.close();
-  const a={id:t,t,s,p:x[1],q,h:x[4]>0?q/(x[4]/17):null,m:$("dm").value,n:$("dn").value.trim(),hold:$("dhold").checked,rel:null,ok:null};ABT.unshift(a);sv("abort");notify(a);if(!a.hold)(ADD[s]=ADD[s]||[]).push([t,q])}
- else{if(FIN[s]&&t-FIN[s]<5000)return dlg.close();FIN[s]=t;sv("fin");(ADD[s]=ADD[s]||[]).push([t,q])}
+  const a={id:t,t,s,p:x[1],q,h:x[4]>0?q/(x[4]/17):null,m:$("dm").value,n:$("dn").value.trim(),hold:$("dhold").checked,rel:null,ok:null};ABT.unshift(a);sv("abort");notify(a);if(!a.hold)addPcs(s,t,q)}
+ else{if(FIN[s]&&t-FIN[s]<5000)return dlg.close();FIN[s]=t;sv("fin");addPcs(s,t,q)}
  sv("add");delete RUN[s];sv("run");pend=null;dlg.close();render()}
-function relAbt(id,m){const a=ABT.find(v=>v.id===id);if(!a||a.rel)return;a.rel={t:Date.now(),r:m};sv("abort");if(m==="lib"){(ADD[a.s]=ADD[a.s]||[]).push([Date.now(),a.q]);sv("add")}render()}
+function relAbt(id,m){const a=ABT.find(v=>v.id===id);if(!a||a.rel)return;a.rel={t:Date.now(),r:m};sv("abort");if(m==="lib"){addPcs(a.s,Date.now(),a.q);sv("add")}render()}
 function ackAbt(id){const a=ABT.find(v=>v.id===id);if(a){a.ok=Date.now();sv("abort");render()}}
 function toast(h){const t=$("toast");t.innerHTML=h;t.classList.remove("hid");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.add("hid"),30000)}
 const api=async b=>(await fetch(MAIL_API,{method:"POST",body:JSON.stringify(b)})).json(); /* texto plano: evita preflight CORS en Apps Script */
@@ -194,19 +202,19 @@ function render(){
  if(qh.length)$("qalert").textContent="🛑 PIEZAS DETENIDAS POR CALIDAD (pendiente certificación): "+qh.slice(0,5).map(a=>a.s+" ("+a.p+") "+a.q+" pzs").join(" · ")+(qh.length>5?" +"+(qh.length-5):"");
  if(al.length){$("alert").textContent="🔔 ALERTA ≤"+ALERT_H+" h: "+al.slice(0,6).map(x=>x[0]+" ("+x[1]+") "+hrs(x).toFixed(1)+"h").join(" · ")+(al.length>6?" +"+(al.length-6):"")+(snd||!hot?"":"  — activa 🔇 SONIDO");
   if(hot&&snd&&Date.now()-lastBeep>BEEP_EVERY){lastBeep=Date.now();beep()}}
- const ls=lastShift(now),nop=S.rows.filter(x=>PR.includes(x[1])&&!patOf(x)).length,
+ const ls=lastShift(now),nop=rows().filter(x=>PR.includes(x[1])&&!patOf(x)).length,
   w=[S.base<ls.st-3e5&&now-ls.st>18e5&&"⚠ INVENTARIO SIN ACTUALIZAR desde el inicio de T"+ls.s+" ("+hm(ls.st)+")",mc&&"⚠ Falta calendario de "+mc.toLocaleString("es-MX",{month:"long",year:"numeric"}),nop&&"⚠ "+nop+" sebangos sin patrón en PATRONES.csv",SYNC.indexOf("⚠")===0&&SYNC].filter(Boolean);
  $("foot").style.color=w.length?"var(--C)":"";$("foot").style.fontWeight=w.length?"800":"";
- $("foot").textContent=(w.length?w.join(" · ")+" · ":"")+"Inventario de "+fdt(S.base)+(S.base!==S.up?" (inicio de turno)":"")+" · cargado "+hm(S.up)+" · "+S.src+" · "+S.rows.length+" sebangos"+(S.dup?" ("+S.dup+" duplicados omitidos)":"")+" · las horas bajan solo en horas productivas"+(SYNC&&SYNC.indexOf("⚠")!==0?" · "+SYNC:"")+((CAL._proyectado||[]).includes(mk(now))?" · 📅 calendario proyectado":"");
+ $("foot").textContent=(w.length?w.join(" · ")+" · ":"")+"Inventario de "+fdt(S.base)+(S.base!==S.up?" (inicio de turno)":"")+" · cargado "+hm(S.up)+" · "+S.src+" · "+S.rows.length+" sebangos"+(S.rows.length>rows().length?" ("+(S.rows.length-rows().length)+" pares unidos)":"")+(S.dup?" ("+S.dup+" duplicados omitidos)":"")+" · las horas bajan solo en horas productivas"+(SYNC&&SYNC.indexOf("⚠")!==0?" · "+SYNC:"")+((CAL._proyectado||[]).includes(mk(now))?" · 📅 calendario proyectado":"");
  if(V==="home")$("grid").innerHTML=PR.map(p=>{const ps=pstat(p,now),r=ps.it,m=r.length?Math.min(...r.map(i=>i.h)):999,c=cl(m),n=r.filter(i=>i.c==="C"&&!i.run).length,u=r.filter(i=>i.run).length,q=curSlot(p,now);
-  return `<button class="press ${c}${r.some(i=>!i.run&&i.h<=ALERT_H)?" blink":""}" onclick="sel='${p}';V='det';lastBeep=0;render()"><b>${p}</b><small>${r.length} sebangos${u?" · ▶"+u:""}</small><small style="color:var(--tx)">${q.L?(q.act?"Patrón ":"Próx. ")+q.L+" · T"+q.s:""}</small><em>${EM[c]}</em><strong>${n?n+" CRÍTICO"+(n>1?"S":""):LB[c]}</strong><small style="color:var(--${pcc(ps.pc)});font-weight:800">Cumpl. patrón ${ps.pc==null?"–":ps.pc+"%"}</small></button>`}).join("");
+  return `<button class="press ${c}${r.some(i=>!i.run&&i.h<=ALERT_H)?" blink":""}" onclick="sel='${p}';V='det';lastBeep=0;render()"><b>${p}</b><small>${r.length} números${u?" · ▶"+u:""}</small><small style="color:var(--tx)">${q.L?(q.act?"Patrón ":"Próx. ")+q.L+" · T"+q.s:""}</small><em>${EM[c]}</em><strong>${n?n+" CRÍTICO"+(n>1?"S":""):LB[c]}</strong><small style="color:var(--${pcc(ps.pc)});font-weight:800">Cumpl. patrón ${ps.pc==null?"–":ps.pc+"%"}</small></button>`}).join("");
  if(V==="det"){const k={C:0,A:0,X:0,K:0},ps=pstat(sel,now),it=ps.it,q=curSlot(sel,now);it.forEach(i=>k[i.c]++);
   $("sum").innerHTML=`<div class="w pat"><small>${q.act?"PATRÓN EN CURSO":"PRÓXIMO PATRÓN"}</small><span>${q.L?q.L+" · T"+q.s:"–"}</span><small>${fh(SH[q.s][0])} – ${fh(SH[q.s][1])}</small></div>`+ORD.map(c=>`<div class="${c}"><span>${k[c]}</span><small>${EM[c]} ${LB[c]}</small></div>`).join("")+`<div class="w ${pcc(ps.pc)}"><span>${ps.pc==null?"–":ps.pc+"%"}</span><small>CUMPLIMIENTO PATRÓN</small></div>`;
   if(!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#man"))){const o=OVR[sel]||[],op=ps.auto.map(i=>`<option value="${i.x[0]}">${i.x[0]} · ${i.h.toFixed(1)}h</option>`).join("");
    ["m1","m2"].forEach((id,j)=>{$(id).innerHTML='<option value="">Auto</option>'+op;$(id).value=o[j]||""})}
   const cv=i=>i.run?"":!i.nr?"sin corrida en el calendario cargado":i.nr.now?"corre ahora":i.def>0?"SE AGOTA ANTES · faltan "+i.def.toFixed(1)+" h":"alcanza · sobran "+(i.h-i.gap).toFixed(1)+" h";
-  $("list").innerHTML=it.map(i=>`<div class="row ${i.c}${i.run?" isrun":""}"><span class="n ${i.run?"run":i.man?"man":""}" ${i.man?'title="posición manual"':""}>${i.run?"▶":i.pos}</span><span class="s">${i.x[0]}</span><span class="pt${i.run?" run":""}">${i.run?"▶ CORRIENDO "+hm(i.run):i.nr?i.nr.lbl:"Sin patrón"}<small class="${i.def>0||i.hold?"bad":""}">${(i.hold?"🛑 "+i.hold+" pzs en calidad · ":"")+(i.f?"✔ terminó "+hm(i.f)+" · ":"")+cv(i)}</small></span><span class="h" style="color:var(--${i.c})">${i.h.toFixed(1)}h<small>${EM[i.c]} ${LB[i.c]}</small></span><span class="ac">${i.run?`<button class="ib ok" title="Terminó" onclick="act('${i.x[0]}','end')">✔</button><button class="ib no" title="Abortar" onclick="act('${i.x[0]}','abort')">⛔</button>`:`<button class="ib go" title="Ya está corriendo" onclick="act('${i.x[0]}','run')">▶</button>`}</span><div class="bar"><i class="bg${i.c}" style="width:${pct(i.h)}%"></i></div></div>`).join("")||"<p>Sin sebangos</p>";fit()}
- if(V==="abt")$("atb").innerHTML=ABT.map(a=>{const x=S.rows.find(r=>r[0]===a.s),h=x?hrs(x):null,hold=a.hold&&!a.rel;
+  $("list").innerHTML=it.map(i=>`<div class="row ${i.c}${i.run?" isrun":""}"><span class="n ${i.run?"run":i.man?"man":""}" ${i.man?'title="posición manual"':""}>${i.run?"▶":i.pos}</span><span class="s${i.x[5]?" p2":""}">${i.x[0].replace("/"," / ")}</span><span class="pt${i.run?" run":""}">${i.run?"▶ CORRIENDO "+hm(i.run):i.nr?i.nr.lbl:"Sin patrón"}<small class="${i.def>0||i.hold?"bad":""}">${(i.lim?"limita "+i.lim+" · ":"")+(i.hold?"🛑 "+i.hold+" pzs en calidad · ":"")+(i.f?"✔ terminó "+hm(i.f)+" · ":"")+cv(i)}</small></span><span class="h" style="color:var(--${i.c})">${i.h.toFixed(1)}h<small>${EM[i.c]} ${LB[i.c]}</small></span><span class="ac">${i.run?`<button class="ib ok" title="Terminó" onclick="act('${i.x[0]}','end')">✔</button><button class="ib no" title="Abortar" onclick="act('${i.x[0]}','abort')">⛔</button>`:`<button class="ib go" title="Ya está corriendo" onclick="act('${i.x[0]}','run')">▶</button>`}</span><div class="bar"><i class="bg${i.c}" style="width:${pct(i.h)}%"></i></div></div>`).join("")||"<p>Sin sebangos</p>";fit()}
+ if(V==="abt")$("atb").innerHTML=ABT.map(a=>{const x=rows().find(r=>r[0]===a.s),h=x?hrs(x):null,hold=a.hold&&!a.rel;
   const q=!a.hold?"–":hold?`<span class="tag" style="background:#6f42c1">🛑 DETENIDAS POR CALIDAD</span><br><button class="mini" onclick="relAbt(${a.id},'lib')">✔ Liberar</button> <button class="mini" style="background:var(--C)" onclick="relAbt(${a.id},'scrap')">✖ Scrap</button>`:a.rel.r==="lib"?`<span class="tag bgK">LIBERADAS ${hm(a.rel.t)}</span>`:`<span class="tag" style="background:#6c757d">SCRAP ${hm(a.rel.t)}</span>`;
   return `<tr><td>${fdt(a.t)}</td><td>${a.p}</td><td><b>${a.s}</b></td><td><b>${a.q}</b> pzs${a.h!=null?`<br><small>≈ ${a.h.toFixed(1)} h de alcance</small>`:""}</td><td>${h==null?"–":`<b style="color:var(--${cl(h)})">${h.toFixed(1)} h</b>`}${hold?"<br><small>sin contar piezas retenidas</small>":""}</td><td>${a.m}${a.n?"<br><small>"+a.n+"</small>":""}</td><td>${q}</td><td>${a.ok?`<span class="tag bgK">ATENDIDO ${hm(a.ok)}</span>`:`<span class="tag bgC">PENDIENTE</span> <button class="mini" onclick="ackAbt(${a.id})">✔ Atendido</button>`}</td></tr>`}).join("")||'<tr><td colspan="8">Sin abortados registrados</td></tr>'}
 function fit(){const L=$("list"),n=L.children.length;if(!n||V!=="det")return;const W=L.clientWidth,H=L.clientHeight,g=6,maxC=Math.max(1,Math.floor(W/400));
