@@ -145,31 +145,12 @@ const pcc=v=>v==null||v>=90?"K":v>=70?"A":"C";
 function setOvr(){OVR[sel]=[$("m1").value,$("m2").value];sv("ovr");render()}
 function clearOvr(){delete OVR[sel];sv("ovr");render()}
 /* ===== Sonido ===== */
-/* ===== Sonido ===== */
-function beep(){ /* Aviso Andon tipo Chime/Campana Industrial de 2 tonos */
- try{
-  AC=AC||new(window.AudioContext||window.webkitAudioContext)();
-  AC.resume();
-  const t=AC.currentTime;
-  // Dos tonos limpios y armónicos (Mi6 y Sol6)
-  const notas=[1318.51, 1567.98];
-  
-  notas.forEach((f,i)=>{
-   const o=AC.createOscillator(), g=AC.createGain(), t0=t+i*.12;
-   o.type="sine"; // Onda senoidal pura tipo campana/chime
-   o.frequency.setValueAtTime(f,t0);
-   g.gain.setValueAtTime(.0001,t0);
-   g.gain.exponentialRampToValueAtTime(.4,t0+.01);
-   // Decaimiento progresivo para dar efecto de resonancia suave
-   g.gain.exponentialRampToValueAtTime(.0001,t0+.35);
-   o.connect(g);
-   g.connect(AC.destination);
-   o.start(t0);
-   o.stop(t0+.36);
-  });
- }catch(e){}
- try{navigator.vibrate&&navigator.vibrate(200)}catch(e){}
-}
+function beep(){ /* aviso tipo "power-up": arpegio original ascendente (no es el audio de Nintendo, es un sonido propio de alerta) */
+ try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();const t=AC.currentTime,notas=[523.25,659.25,783.99,1046.5,1318.5];
+  notas.forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain(),t0=t+i*.07;o.type="square";o.frequency.setValueAtTime(f,t0);g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.5,t0+.01);g.gain.exponentialRampToValueAtTime(.0001,t0+.1);o.connect(g);g.connect(AC.destination);o.start(t0);o.stop(t0+.11)})}catch(e){}
+ try{navigator.vibrate&&navigator.vibrate(200)}catch(e){}}
+function toggleSnd(){snd=!snd;if(snd)beep();$("snd").className="btn"+(snd?" on":"");$("snd").firstChild.textContent=snd?"🔔 ":"🔇 "}
+const alerts=()=>S?rows().filter(x=>PR.includes(x[1])&&!RUN[x[0]]&&hrs(x)<=ALERT_H).sort((a,b)=>hrs(a)-hrs(b)):[];
 /* ===== Corrida / terminó / aborto ===== */
 function act(s,a){const x=rows().find(r=>r[0]===s);if(!x)return;
  if(a==="run"){if(RUN[s])return;RUN[s]=Date.now();sv("run");Object.keys(OVR).forEach(p=>OVR[p]=OVR[p].map(v=>v===s?"":v));sv("ovr")}
